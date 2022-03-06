@@ -1,0 +1,36 @@
+version: "3.8"
+
+services:
+    mariadb:
+        image: mariadb:10.5
+        container_name: database_crm_app
+        ports:
+            - "3306:3306"
+        environment:
+            MYSQL_ROOT_PASSWORD: root
+            MYSQL_DATABASE: crm
+            MYSQL_USER: crm
+            MYSQL_PASSWORD: crm
+        command: --init-file /var/lib/mysql/init.sql
+        volumes:
+            - ../backend/init.sql:/var/lib/mysql/init.sql
+            - ./database:/var/lib/mysql
+        networks:
+            - crm
+    backend:
+        build:
+            context: ../backend
+            dockerfile: Dockerfile_work
+        container_name: backend_crm_app
+        ports:
+            - "8020:80"
+        volumes:
+            - ../backend:/var/www/html
+        working_dir: /var/www/html
+        networks:
+            - crm
+        links:
+            - "mariadb:db"
+networks:
+    crm:
+        driver: bridge

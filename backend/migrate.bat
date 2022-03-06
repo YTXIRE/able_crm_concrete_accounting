@@ -1,0 +1,1 @@
+php yii migrate --interactive=0

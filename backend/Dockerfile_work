@@ -1,0 +1,13 @@
+FROM php:7.4-apache
+
+RUN docker-php-ext-install\
+    pdo_mysql \
+    && a2enmod \
+    rewrite \
+    headers
+
+RUN chmod 777 /var/www/html
+
+RUN rm -rf ./config/db.php
+
+ADD ./config/example_db.php ./config/db.php
