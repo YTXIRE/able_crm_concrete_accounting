@@ -140,7 +140,6 @@ class HistoryOperation extends ActiveRecord
                 $query = $query->andWhere([$operation['operation'], $operation['field'], $operation['value']]);
             }
         }
-        $query = $query->andWhere(['=', 'is_debt', 0]);
         return $query->all();
     }
 

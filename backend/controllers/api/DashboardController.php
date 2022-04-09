@@ -11,7 +11,6 @@ use Constants;
 use Exception;
 use general\General;
 use Yii;
-use yii\helpers\Helpers;
 use yii\rest\Controller;
 
 class DashboardController extends Controller
@@ -335,11 +334,7 @@ class DashboardController extends Controller
                         } else {
                             $materials_on_object['operations'][$operation->material['name']] = $operation['volume'];
                         }
-                        if (array_key_exists($operation->material['name'], $materials_on_object['labels'])) {
-                            $materials_on_object['labels'][$operation->material['name']] = $operation->material->materialType->units['name'];
-                        } else {
-                            $materials_on_object['labels'][$operation->material['name']] = $operation->material->materialType->units['name'];
-                        }
+                        $materials_on_object['labels'][$operation->material['name']] = $operation->material->materialType->units['name'];
                     }
                 }
             }

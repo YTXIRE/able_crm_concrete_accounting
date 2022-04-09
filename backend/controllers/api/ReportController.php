@@ -557,15 +557,14 @@ class ReportController extends Controller
                         foreach ($value as $item) {
                             $tmp_value[] = $item['id'];
                         }
-                        $operation_value = '(' . implode(', ', $tmp_value) . ')';
                         $operation_filter = $filter['operation'] === 'equal' ? 'in' : 'not in';
                         if (count($value) === 0) {
-                            $operation_value = 0;
-                            $operation_filter = '=';
+                            $tmp_value = [1];
+                            $operation_filter = 'in';
                         }
                         $operations[] = [
                             'field' => 'material_id',
-                            'value' => $operation_value,
+                            'value' => $tmp_value,
                             'operation' => $operation_filter
                         ];
                         break;
