@@ -18,8 +18,8 @@ import Advanced from "@/components/Reports/Advanced.vue";
 export default {
     components: {
         Advanced,
-        Base,
-    },
+        Base
+    }
 };
 </script>
 

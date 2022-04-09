@@ -137,7 +137,11 @@ class HistoryOperation extends ActiveRecord
             if ($key === 0) {
                 $query = $query->where([$operation['operation'], $operation['field'], $operation['value']]);
             } else {
-                $query = $query->andWhere([$operation['operation'], $operation['field'], $operation['value']]);
+                if ($operation['unity'] === 'and') {
+                    $query = $query->andWhere([$operation['operation'], $operation['field'], $operation['value']]);
+                } else {
+                    $query = $query->orWhere([$operation['operation'], $operation['field'], $operation['value']]);
+                }
             }
         }
         return $query->all();

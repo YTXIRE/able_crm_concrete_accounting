@@ -162,7 +162,7 @@
                         </el-table-column>
                     </el-table>
                 </div>
-                <div v-else>Нет данных</div>
+                <div v-else>Ни выбран не один фильтр. Пожалуйста, выберите фильтр</div>
             </div>
             <el-divider />
             <div v-if="total_summary.total || total_summary.volume">
@@ -249,7 +249,7 @@ export default {
             this.loading = true;
             this.current_filter = id;
             const filter = this.filters.filter((filter) => filter.id === id)[0]["filters"];
-            this.filtered_data = await this.getAdvancedReport({
+            const response = await this.getAdvancedReport({
                 token: localStorage.getItem("crm_token"),
                 filters: filter
             });
@@ -257,6 +257,11 @@ export default {
                 total: 0,
                 volume: 0
             };
+            if (response) {
+                this.filtered_data = response;
+            } else {
+                this.loading = false;
+            }
             this.filtered_data.forEach(data => {
                 this.total_summary.total += data.total;
                 this.total_summary.volume += data.volume;

@@ -13,16 +13,16 @@ export default {
     props: {
         title: {
             type: String,
-            require: true,
-        },
+            require: true
+        }
     },
     components: {
         Main,
-        Reports,
+        Reports
     },
     beforeMount() {
         document.title = this.title;
-    },
+    }
 };
 </script>
 

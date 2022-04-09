@@ -411,7 +411,8 @@ class ReportController extends Controller
                 return General::generalMethod($request, 404, [], $this, Constants::$USER_WITH_TOKEN_AND_ID_NOT_FOUND);
             }
             foreach ($data['filters'] as $filter) {
-                if (!array_key_exists('field', $filter) || !array_key_exists('operation', $filter) || !array_key_exists('value', $filter)) {
+                if (!array_key_exists('field', $filter) || !array_key_exists('operation', $filter) || !array_key_exists('value', $filter)
+                    || !array_key_exists('unity', $filter)) {
                     return General::generalMethod($request, 400, [], $this, Constants::$FILTER_FIELDS_ARE_MISSING);
                 }
             }
@@ -465,11 +466,10 @@ class ReportController extends Controller
                 if ($filter['field'] === 'volume' && !($filter['value'] < 1000000000)) {
                     return General::generalMethod($request, 400, $filter, $this, Constants::$VOLUME_MUST_LESS_THAN_1000000000);
                 }
-                if ($filter['field'] === 'confirm_history_operation' && (int)$filter['value'] !== 0 &&
-                    $filter['value'] !== 1) {
+                if ($filter['field'] === 'confirm_history_operation' && $filter['value'] !== 0 && $filter['value'] !== 1) {
                     return General::generalMethod($request, 400, $filter, $this, Constants::$CONFIRMATED_DATA_IS_ACTIVE_OR_NO_ACTIVE);
                 }
-                if (($filter['field'] === 'date_from' || $filter['field'] === 'date_to') && (!is_int($filter['value']) || !is_int($filter['value']))) {
+                if (($filter['field'] === 'date_from' || $filter['field'] === 'date_to') && (!is_int($filter['value']))) {
                     return General::generalMethod($request, 400, $filter, $this, Constants::$DATE_MUST_BE_INTEGER);
                 }
                 if ($filter['field'] === 'date_from' && $filter['value'] === 0) {
@@ -477,6 +477,11 @@ class ReportController extends Controller
                 }
                 if ($filter['field'] === 'date_to' && $filter['value'] === 0) {
                     $filter['date_to'] = $date->getTimestamp();
+                }
+                if (mb_strtolower($filter['unity']) !== 'or' && mb_strtolower($filter['unity']) !== 'and') {
+                    $filter['unity'] = 'and';
+                } else {
+                    $filter['unity'] = mb_strtolower($filter['unity']);
                 }
                 $fields[] = $filter['field'];
             }
@@ -498,49 +503,56 @@ class ReportController extends Controller
                         $operations[] = [
                             'field' => 'vendor_id',
                             'value' => $filter['value'],
-                            'operation' => $operations_indication[$filter['operation']]
+                            'operation' => $operations_indication[$filter['operation']],
+                            'unity' => $filter['unity']
                         ];
                         break;
                     case 'object':
                         $operations[] = [
                             'field' => 'object_id',
                             'value' => $filter['value'],
-                            'operation' => $operations_indication[$filter['operation']]
+                            'operation' => $operations_indication[$filter['operation']],
+                            'unity' => $filter['unity']
                         ];
                         break;
                     case 'material':
                         $operations[] = [
                             'field' => 'material_id',
                             'value' => $filter['value'],
-                            'operation' => $operations_indication[$filter['operation']]
+                            'operation' => $operations_indication[$filter['operation']],
+                            'unity' => $filter['unity']
                         ];
                         break;
                     case 'price':
                         $operations[] = [
                             'field' => 'price',
                             'value' => $filter['value'],
-                            'operation' => $operations_indication[$filter['operation']]
+                            'operation' => $operations_indication[$filter['operation']],
+                            'unity' => $filter['unity']
                         ];
                         break;
                     case 'volume':
                         $operations[] = [
                             'field' => 'volume',
                             'value' => $filter['value'],
-                            'operation' => $operations_indication[$filter['operation']]
+                            'operation' => $operations_indication[$filter['operation']],
+                            'unity' => $filter['unity']
                         ];
                         break;
                     case 'total':
                         $operations[] = [
                             'field' => 'total',
                             'value' => $filter['value'],
-                            'operation' => $operations_indication[$filter['operation']]
+                            'operation' => $operations_indication[$filter['operation']],
+                            'unity' => $filter['unity']
                         ];
                         break;
                     case 'confirm_history_operation':
                         $operations[] = [
                             'field' => 'confirmed_data',
                             'value' => $filter['value'],
-                            'operation' => $operations_indication[$filter['operation']]
+                            'operation' => $operations_indication[$filter['operation']],
+                            'unity' => $filter['unity']
                         ];
                         break;
                     case 'date_to':
@@ -548,7 +560,8 @@ class ReportController extends Controller
                         $operations[] = [
                             'field' => 'created_at',
                             'value' => $filter['value'],
-                            'operation' => $operations_indication[$filter['operation']]
+                            'operation' => $operations_indication[$filter['operation']],
+                            'unity' => $filter['unity']
                         ];
                         break;
                     case 'material_type':
@@ -565,7 +578,8 @@ class ReportController extends Controller
                         $operations[] = [
                             'field' => 'material_id',
                             'value' => $tmp_value,
-                            'operation' => $operation_filter
+                            'operation' => $operation_filter,
+                            'unity' => $filter['unity']
                         ];
                         break;
                 }

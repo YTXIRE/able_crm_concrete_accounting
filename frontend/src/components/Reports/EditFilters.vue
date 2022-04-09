@@ -1,5 +1,5 @@
 <template>
-    <el-button circle plain type="primary" class="mr-10" @click.stop.prevent="dialogVisible = true">
+    <el-button circle class="mr-10" plain type="primary" @click.stop.prevent="dialogVisible = true">
         <font-awesome-icon icon="edit" />
     </el-button>
     <el-dialog v-model="dialogVisible" fullscreen title="Настройка представления">
@@ -21,7 +21,15 @@
                         class="wrapper"
                     >
                         <div v-if="block.position !== 'first'">
-                            <span class="and">И</span>
+                            <el-select v-model="block.unity" class="unity">
+                                <el-option
+                                    v-for="item in unity"
+                                    :key="item.value"
+                                    :label="item.label"
+                                    :value="item.value"
+                                >
+                                </el-option>
+                            </el-select>
                         </div>
                         <el-card class="card" shadow="hover">
                             <el-button
@@ -107,17 +115,27 @@ export default {
     props: {
         data: {
             require: true,
-            type: Object,
+            type: Object
         },
         filters_data_edit: {
             require: true,
-            type: Object,
-        },
+            type: Object
+        }
     },
     data() {
         return {
             dialogVisible: false,
             filter_name: "",
+            unity: [
+                {
+                    label: "И",
+                    value: "and"
+                },
+                {
+                    label: "ИЛИ",
+                    value: "or"
+                }
+            ],
             filters_block: [
                 {
                     id: Math.random(),
@@ -125,17 +143,18 @@ export default {
                     operation: "",
                     value: "",
                     position: "first",
-                },
+                    unity: "and"
+                }
             ],
             old_filters_block: [],
             filters_data: {
-                confirm_history_operation: [],
+                confirm_history_operation: []
             },
             label_filter: "",
             shortcuts: [
                 {
                     text: "Сегодня",
-                    value: new Date(),
+                    value: new Date()
                 },
                 {
                     text: "Вчера",
@@ -143,91 +162,91 @@ export default {
                         const date = new Date();
                         date.setTime(date.getTime() - 3600 * 1000 * 24);
                         return date;
-                    },
-                },
+                    }
+                }
             ],
             filtered_fields: [
                 {
                     label: "Поставщик",
-                    value: "vendor",
+                    value: "vendor"
                 },
                 {
                     label: "Объект",
-                    value: "object",
+                    value: "object"
                 },
                 {
                     label: "Юридическое лицо",
-                    value: "legal_entity",
+                    value: "legal_entity"
                 },
                 {
                     label: "Материал",
-                    value: "material",
+                    value: "material"
                 },
                 {
                     label: "Тип материала",
-                    value: "material_type",
+                    value: "material_type"
                 },
                 {
                     label: "Стоимость",
-                    value: "price",
+                    value: "price"
                 },
                 {
                     label: "Итоговая стоимость",
-                    value: "total",
+                    value: "total"
                 },
                 {
                     label: "Объем",
-                    value: "volume",
+                    value: "volume"
                 },
                 {
                     label: "Дата от",
-                    value: "date_from",
+                    value: "date_from"
                 },
                 {
                     label: "Дата до",
-                    value: "date_to",
+                    value: "date_to"
                 },
                 {
                     label: "Подтвержденные операции",
-                    value: "confirm_history_operation",
-                },
+                    value: "confirm_history_operation"
+                }
             ],
             operations: [
                 {
                     value: "equal",
-                    label: "Равно",
+                    label: "Равно"
                 },
                 {
                     value: "not_equal",
-                    label: "Не равно",
+                    label: "Не равно"
                 },
                 {
                     value: "over",
-                    label: "Больше",
+                    label: "Больше"
                 },
                 {
                     value: "over_or_equal",
-                    label: "Больше или равно",
+                    label: "Больше или равно"
                 },
                 {
                     value: "less",
-                    label: "Меньше",
+                    label: "Меньше"
                 },
                 {
                     value: "less_or_equal",
-                    label: "Меньше или равно",
-                },
+                    label: "Меньше или равно"
+                }
             ],
             confirmation_data: [
                 {
                     name: "Данные подтверждены",
-                    id: 1,
+                    id: 1
                 },
                 {
                     name: "Данные не подтверждены",
-                    id: 0,
-                },
-            ],
+                    id: 0
+                }
+            ]
         };
     },
     methods: {
@@ -237,7 +256,7 @@ export default {
             "getAllLegalEntities",
             "getAllMaterials",
             "getAllMaterialTypes",
-            "updateFilter",
+            "updateFilter"
         ]),
         add() {
             this.filters_block.push({
@@ -246,6 +265,7 @@ export default {
                 operation: "",
                 value: "",
                 position: "",
+                unity: "and"
             });
         },
         remove_filters_block(id) {
@@ -274,10 +294,10 @@ export default {
                 return "datepicker";
             }
         },
-        setValue: function () {
+        setValue: function() {
             this.old_filters_block = _.cloneDeep(this.filters_block);
         },
-        updateFilterMethod: async function () {
+        updateFilterMethod: async function() {
             let errors = [];
             if (this.filter_name === "") {
                 errors.push("label");
@@ -306,7 +326,7 @@ export default {
                         token: localStorage.getItem("crm_token"),
                         name: this.filter_name,
                         filters: JSON.stringify(fb),
-                        id: this.data.id,
+                        id: this.data.id
                     });
                     if (response) {
                         this.dialogVisible = false;
@@ -318,18 +338,19 @@ export default {
                                 operation: "",
                                 value: "",
                                 position: "first",
-                            },
+                                unity: "and"
+                            }
                         ];
                         this.old_filters_block = [];
                         this.filters_data = {
-                            confirm_history_operation: [],
+                            confirm_history_operation: []
                         };
                     }
                 }
             } else {
                 ElMessage.error("Пожалуйста, заполните все поля");
             }
-        },
+        }
     },
     mounted() {
         this.setValue();
@@ -344,14 +365,14 @@ export default {
         this.filters_data = {
             ...this.filters_data,
             ...this.filters_data_edit
-        }
+        };
     },
     watch: {
         filters_block: {
             async handler(after) {
                 const vm = this;
-                let changed = after.filter(function (p, idx) {
-                    return Object.keys(p).some(function (prop) {
+                let changed = after.filter(function(p, idx) {
+                    return Object.keys(p).some(function(prop) {
                         return p[prop] !== vm.old_filters_block?.[idx]?.[prop];
                     });
                 })[0];
@@ -379,7 +400,7 @@ export default {
                 }
                 vm.setValue();
             },
-            deep: true,
+            deep: true
         },
         data(e) {
             this.filter_name = e.name;
@@ -393,9 +414,9 @@ export default {
             this.filters_data = {
                 ...this.filters_data,
                 ...this.filters_data_edit
-            }
-        },
-    },
+            };
+        }
+    }
 };
 </script>
 <style scoped>
@@ -442,7 +463,7 @@ export default {
 }
 
 .mt-block {
-    margin-left: 61px;
+    margin-left: 25px;
 }
 
 .card_block {
@@ -456,5 +477,14 @@ export default {
 
 .mr-10 {
     margin-right: 10px;
+}
+
+.unity {
+    max-width: 85px !important;
+    font-size: 30px;
+    display: block;
+    padding-top: 78px;
+    margin-left: 20px;
+    margin-right: 20px;
 }
 </style>

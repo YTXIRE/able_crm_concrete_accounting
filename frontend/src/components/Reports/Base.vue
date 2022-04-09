@@ -24,8 +24,8 @@
                 <p v-else>Нет данных</p>
             </div>
             <div id="print_base_vendors" class="view_reports">
-                <el-table :data="filtered_vendors" style="width: 100%" >
-                    <el-table-column label="Поставщик" prop="name"/>
+                <el-table :data="filtered_vendors" style="width: 100%">
+                    <el-table-column label="Поставщик" prop="name" />
                     <el-table-column label="Взяли">
                         <template #default="scope">
                             <table
@@ -125,6 +125,7 @@ export default {
         }
     },
     async mounted() {
+        this.loading = true;
         const base_report = await this.getBaseReport(localStorage.getItem("crm_token"));
         for (let item in base_report) {
             let operaions = [];
@@ -153,6 +154,7 @@ export default {
                 visible: true
             });
         }
+        this.loading = false;
     },
     computed: {
         filtered_vendors() {

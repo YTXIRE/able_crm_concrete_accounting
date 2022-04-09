@@ -1,5 +1,5 @@
 <template>
-    <el-button @click="dialogVisible = true"> Добавить новый фильтр</el-button>
+    <el-button @click="dialogVisible = true">Добавить новый фильтр</el-button>
     <el-dialog v-model="dialogVisible" fullscreen title="Настройка представления">
         <div class="main_block">
             <el-input
@@ -19,7 +19,15 @@
                         class="wrapper"
                     >
                         <div v-if="block.position !== 'first'">
-                            <span class="and">И</span>
+                            <el-select v-model="block.unity" class="unity">
+                                <el-option
+                                    v-for="item in unity"
+                                    :key="item.value"
+                                    :label="item.label"
+                                    :value="item.value"
+                                >
+                                </el-option>
+                            </el-select>
                         </div>
                         <el-card class="card" shadow="hover">
                             <el-button
@@ -130,13 +138,24 @@ export default {
             isReady: false,
             dialogVisible: false,
             filter_name: "",
+            unity: [
+                {
+                    label: "И",
+                    value: "and"
+                },
+                {
+                    label: "ИЛИ",
+                    value: "or"
+                }
+            ],
             filters_block: [
                 {
                     id: Math.random(),
                     field: "",
                     operation: "",
                     value: "",
-                    position: "first"
+                    position: "first",
+                    unity: "and"
                 }
             ],
             old_filters_block: [],
@@ -257,7 +276,8 @@ export default {
                 field: "",
                 operation: "",
                 value: "",
-                position: ""
+                position: "",
+                unity: "and"
             });
         },
         remove_filters_block(id) {
@@ -328,7 +348,8 @@ export default {
                                 field: "",
                                 operation: "",
                                 value: "",
-                                position: "first"
+                                position: "first",
+                                unity: "and"
                             }
                         ];
                         this.old_filters_block = [];
@@ -428,7 +449,7 @@ export default {
 }
 
 .mt-block {
-    margin-left: 61px;
+    margin-left: 25px;
 }
 
 .card_block {
@@ -438,5 +459,14 @@ export default {
 .red {
     outline: 1px solid red;
     border-radius: 2pt;
+}
+
+.unity {
+    max-width: 85px !important;
+    font-size: 30px;
+    display: block;
+    padding-top: 78px;
+    margin-left: 20px;
+    margin-right: 20px;
 }
 </style>
