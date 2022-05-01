@@ -35,8 +35,10 @@ export default {
         if (localStorage.getItem("crm_token") === null) {
             this.$router.push("/");
         } else {
-            if (window.location.pathname !== "/") {
-                this.$router.push(window.location.pathname);
+            if (localStorage.getItem('currentLink') !== null) {
+                this.$router.push(localStorage.getItem('currentLink'));
+                console.log(localStorage.getItem('currentMenu'));
+                this.setIndexMenu(localStorage.getItem('currentMenu'))
             } else {
                 this.$router.push("/dashboard");
             }

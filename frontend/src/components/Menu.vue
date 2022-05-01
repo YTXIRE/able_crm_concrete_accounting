@@ -52,6 +52,9 @@ export default {
     },
     methods: {
         ...mapActions(["setIndexMenu", "setActiveSettings", "setActiveUserSettings"]),
+        saveCurrentMenu: function(link) {
+            localStorage.setItem('currentLink', link)
+        },
         changeMenu: function (key) {
             this.setIndexMenu(key);
             this.setActiveSettings(false);
@@ -60,30 +63,39 @@ export default {
             switch (key) {
                 case "1":
                     this.$router.push("/dashboard");
+                    this.saveCurrentMenu('/dashboard');
                     break;
                 case "3":
                     this.$router.push("/history");
+                    this.saveCurrentMenu('/history');
                     break;
                 case "4":
                     this.$router.push("/payments");
+                    this.saveCurrentMenu('/payments');
                     break;
                 case "5":
                     this.$router.push("/vendors");
+                    this.saveCurrentMenu('/vendors');
                     break;
                 case "6":
                     this.$router.push("/objects");
+                    this.saveCurrentMenu('/objects');
                     break;
                 case "7":
                     this.$router.push("/materials");
+                    this.saveCurrentMenu('/materials');
                     break;
                 case "8":
                     this.$router.push("/material_types");
+                    this.saveCurrentMenu('/material_types');
                     break;
                 case "9":
                     this.$router.push("/legal_entities");
+                    this.saveCurrentMenu('/legal_entities');
                     break;
                 case "10":
                     this.$router.push("/reports");
+                    this.saveCurrentMenu('/reports');
                     break;
             }
         },
@@ -97,7 +109,7 @@ export default {
         },
     },
     mounted() {
-        if (window.location.pathname === "/") {
+        if (window.location.hash === "#/" && localStorage.getItem('currentLink') === null) {
             localStorage.setItem("currentMenu", "1");
             this.setActiveSettings(false);
             this.setActiveUserSettings(false);
