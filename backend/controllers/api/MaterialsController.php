@@ -407,6 +407,7 @@ class MaterialsController extends Controller
             }
             $data = $request->bodyParams;
             $data = [
+                'id' => array_key_exists('id', $data) ? (int)$data['id'] : 0,
                 'token' => array_key_exists('token', $data) ? trim($data['token']) : '',
                 'name' => array_key_exists('name', $data) ? trim($data['name']) : '',
                 'type_id' => array_key_exists('type_id', $data) ? (int)$data['type_id'] : 0,
@@ -668,9 +669,6 @@ class MaterialsController extends Controller
             }
             if (!Materials::checkIsNotExitsId($data['id'])) {
                 return General::generalMethod($request, 404, $data, $this, Constants::$MATERIAL_WITH_ID_NOT_FOUND);
-            }
-            if (Materials::checkIsNotExitsName($data['name'])) {
-                return General::generalMethod($request, 400, [], $this, Constants::$MATERIAL_WITH_NAME_ALREADY_EXISTS);
             }
             if (!Users::checkUserWithTokenAndID(['id' => $data['user_id'], 'token' => $data['token']])) {
                 return General::generalMethod($request, 404, [], $this, Constants::$USER_WITH_TOKEN_AND_ID_NOT_FOUND);
