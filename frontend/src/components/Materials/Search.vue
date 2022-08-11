@@ -1,29 +1,42 @@
 <template>
     <div class="query_material">
-        <el-input v-model="query" maxlength="100" show-word-limit class="query_material_field" @keydown.enter="search"></el-input>
-        <el-button type="primary" @click="search">
+        <el-input v-model="query" maxlength="100" show-word-limit class="query_material_field" @keydown.enter="search"
+                  placeholder="Введите название материала"></el-input>
+        <el-button type="primary" @click="search" :disabled="active_btn">
             <font-awesome-icon icon="search" />
         </el-button>
     </div>
 </template>
 
 <script>
-import {mapActions} from "vuex";
+import { mapActions } from "vuex";
 
 export default {
     name: "Search",
     data() {
         return {
             query: "",
-            loading: false
+            active_btn: true
         };
     },
     methods: {
-        ...mapActions(['setSearchWordMaterial', 'setIsSearchMaterial']),
+        ...mapActions(["setSearchWordMaterial", "setIsSearchMaterial", "setIsNewMaterial"]),
         async search() {
-            this.setSearchWordMaterial(this.query)
-            this.setIsSearchMaterial(Math.random())
-        },
+            this.setSearchWordMaterial(this.query);
+            this.setIsSearchMaterial(Math.random());
+        }
+    },
+    watch: {
+        query: function() {
+            if (this.query.length > 0 && this.active_btn === true) {
+                this.active_btn = false;
+            }
+            if (this.query.length === 0 && this.active_btn === false) {
+                this.active_btn = true;
+                this.setIsNewMaterial(Math.random());
+                this.setSearchWordMaterial("");
+            }
+        }
     }
 };
 </script>
