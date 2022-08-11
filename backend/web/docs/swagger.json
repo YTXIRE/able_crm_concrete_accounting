@@ -4794,10 +4794,7 @@
                                                         "legal_entity_type": "ОАО",
                                                         "prefix": "fab",
                                                         "vendor": "Поставщик 1",
-                                                        "vendor_id": 1,
-                                                        "material_type": "Тип материала 1",
-                                                        "material_type_id": 1,
-                                                        "units_measurement_volume_id": 1
+                                                        "vendor_id": 1
                                                     }
                                                 },
                                                 "legal_entity_ids": {
@@ -4930,10 +4927,6 @@
                                     },
                                     "legal_entity_id": {
                                         "description": "ID юридического лица",
-                                        "type": "integer"
-                                    },
-                                    "material_type_id": {
-                                        "description": "ID типа материала",
                                         "type": "integer"
                                     },
                                     "amount": {
@@ -5111,10 +5104,6 @@
                                         "description": "ID юридического лица",
                                         "type": "integer"
                                     },
-                                    "material_type_id": {
-                                        "description": "ID типа материала",
-                                        "type": "integer"
-                                    },
                                     "amount": {
                                         "description": "Сумма оплаты",
                                         "type": "number"
@@ -5147,7 +5136,6 @@
                                             "data": {
                                                 "id": 1,
                                                 "legal_entity_id": 1,
-                                                "material_type_id": 1,
                                                 "vendor_id": 1,
                                                 "created_at": 1635843654,
                                                 "amount": 450000

@@ -670,6 +670,9 @@ class MaterialsController extends Controller
             if (!Materials::checkIsNotExitsId($data['id'])) {
                 return General::generalMethod($request, 404, $data, $this, Constants::$MATERIAL_WITH_ID_NOT_FOUND);
             }
+            // if (Materials::checkIsNotExitsName($data['name'])) {
+            //     return General::generalMethod($request, 400, [], $this, Constants::$MATERIAL_WITH_NAME_ALREADY_EXISTS);
+            // }
             if (!Users::checkUserWithTokenAndID(['id' => $data['user_id'], 'token' => $data['token']])) {
                 return General::generalMethod($request, 404, [], $this, Constants::$USER_WITH_TOKEN_AND_ID_NOT_FOUND);
             }

@@ -77,6 +77,12 @@ class Materials extends ActiveRecord
         return self::find()->where(['=', 'type_id', $type_id])->all();
     }
 
+
+    public static function getMaterialsById($id): array
+    {
+        return self::find()->where(['=', 'id', $id])->one();
+    }
+
     /**
      * {@inheritdoc}
      */
