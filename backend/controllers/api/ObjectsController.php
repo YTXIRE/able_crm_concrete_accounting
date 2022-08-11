@@ -1038,4 +1038,186 @@ class ObjectsController extends Controller
             return General::generalMethod($request, 500, $e, $this, Constants::$INTERNAL_SERVER_ERROR);
         }
     }
+
+    /**
+     * @OA\Get(
+     *     path="/api/objects/search",
+     *     summary="Поиск объектов",
+     *     operationId="search",
+     *     tags={"objects"},
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="Токен пользователя",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="query",
+     *         in="query",
+     *         description="Строка поиска",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="user_id",
+     *         in="query",
+     *         description="ID пользователя",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer"
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="OK",
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Examples(
+     *                 example="OK",
+     *                 summary="",
+     *                 value={
+     *                     "code": 200,
+     *                     "status": "OK",
+     *                     "data": {
+     *                          "objects": {
+     *                              {
+     *                                  "id": 1,
+     *                                  "name": "Объект 1"
+     *                              }
+     *                          },
+     *                          "count": 1
+     *                      }
+     *                  }
+     *              )
+     *          )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Неверные данные",
+     *         @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Examples(
+     *                 example="Пожалуйста, укажите токен пользователя",
+     *                 summary="",
+     *                 value={
+     *                     "code": 400,
+     *                     "status": "Bad Request",
+     *                     "message": "Пожалуйста, укажите токен пользователя"
+     *                  }
+     *              ),
+     *              @OA\Examples(
+     *                 example="Максимальная длина токена может быть 100 символов",
+     *                 summary="",
+     *                 value={
+     *                     "code": 400,
+     *                     "status": "Bad Request",
+     *                     "message": "Максимальная длина токена может быть 100 символов"
+     *                  }
+     *              ),
+     *              @OA\Examples(
+     *                 example="Строка поиска должна быть не пустой",
+     *                 summary="",
+     *                 value={
+     *                     "code": 400,
+     *                     "status": "Bad Request",
+     *                     "message": "Строка поиска должна быть не пустой"
+     *                  }
+     *              )
+     *          )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Данные не найдены",
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Examples(
+     *                 example="Пользователь с указанным токеном не найден",
+     *                 summary="",
+     *                 value={
+     *                     "code": 404,
+     *                     "status": "Not Found",
+     *                     "message": "Пользователь с указанным токеном не найден"
+     *                  }
+     *              ),
+     *              @OA\Examples(
+     *                 example="Пользователь с указанным токеном и идентификатором не найден",
+     *                 summary="",
+     *                 value={
+     *                     "code": 404,
+     *                     "status": "Not Found",
+     *                     "message": "Пользователь с указанным токеном и идентификатором не найден"
+     *                  }
+     *              )
+     *          )
+     *     ),
+     *     @OA\Response(
+     *         response=405,
+     *         description="Метод не разрешен",
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Examples(
+     *                 example="Пожалуйста, используйте метод GET для этого запроса",
+     *                 summary="",
+     *                 value={
+     *                     "code": 405,
+     *                     "status": "Method Not Allowed",
+     *                     "message": "Пожалуйста, используйте метод GET для этого запроса"
+     *                  }
+     *              )
+     *          )
+     *     )
+     * )
+     */
+    function actionSearch($token, $user_id, $query = ''): Response
+    {
+        try {
+            $request = Yii::$app->request;
+            if (!$request->isGet) {
+                return General::generalMethod($request, 405, [], $this, Constants::$GET_METHOD_NOT_ALLOWED);
+            }
+            $token = trim($token);
+            $user_id = (int)$user_id;
+            $query = trim($query);
+            if (empty($token)) {
+                return General::generalMethod($request, 400, [$token], $this, Constants::$PLEASE_SPECIFY_USER_TOKEN);
+            }
+            if (empty($query)) {
+                return General::generalMethod($request, 400, [$query], $this, Constants::$PLEASE_SPECIFY_QUERY);
+            }
+            if (mb_strlen($token) > 100) {
+                return General::generalMethod($request, 400, [$token], $this, Constants::$MAXIMUM_TOKEN_LENGTH);
+            }
+            if (!is_int($user_id) || $user_id <= 0) {
+                return General::generalMethod($request, 400, [], $this, Constants::$ID_MUST_BE_INTEGER);
+            }
+            if (!Users::checkExistUserWithToken($token)) {
+                return General::generalMethod($request, 404, [], $this, Constants::$USER_WITH_TOKEN_NOT_FOUND);
+            }
+            if (!Users::checkUserWithTokenAndID(['id' => $user_id, 'token' => $token])) {
+                return General::generalMethod($request, 404, [], $this, Constants::$USER_WITH_TOKEN_AND_ID_NOT_FOUND);
+            }
+            $objects_tmp = Objects::getAll();
+            $objects = [
+                'objects' => [],
+                'count' => [],
+            ];
+            foreach ($objects_tmp as $object) {
+                if (str_contains(mb_strtolower($object['name']), mb_strtolower($query))) {
+                    $objects['objects'][] = [
+                        'id' => $object['id'],
+                        'name' => $object['name'],
+                    ];
+                }
+            }
+            $objects['count'] = count($objects['objects']);
+            return General::success($objects, $request, $this);
+        } catch (Exception $e) {
+            return General::generalMethod($request, 500, $e, $this, Constants::$INTERNAL_SERVER_ERROR);
+        }
+    }
 }

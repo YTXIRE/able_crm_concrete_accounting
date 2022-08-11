@@ -1,5 +1,6 @@
 <template>
     <div class="wrapper">
+        <Search />
         <CreateMaterial :material_types="material_types.types" class="create" />
         <el-card shadow="never">
             <el-table
@@ -20,7 +21,7 @@
             </el-table>
             <br />
             <el-pagination
-                :page-size="10"
+                :page-size="getSearchWordMaterial?.length > 0 ? 1000 : 10"
                 :total="Number(materials.count)"
                 background
                 class="pagination"
@@ -38,50 +39,63 @@
 import CreateMaterial from "./CreateMaterial";
 import { mapActions, mapGetters } from "vuex";
 import EditMaterial from "./EditMaterial";
+import Search from "@/components/Materials/Search";
 
 export default {
     components: {
+        Search,
         CreateMaterial,
-        EditMaterial,
+        EditMaterial
     },
     data() {
         return {
             materials: [],
             loading: false,
             material_types: [],
-            offset: 0,
+            offset: 0
         };
     },
     methods: {
-        ...mapActions(["getAllMaterials", "getAllMaterialTypes"]),
+        ...mapActions(["getAllMaterials", "getAllMaterialTypes", 'searchMaterial']),
         async get_materials() {
             this.loading = true;
             this.materials = await this.getAllMaterials({
                 token: localStorage.getItem("crm_token"),
                 offset: this.offset,
-                limit: 10,
+                limit: 10
             });
             this.loading = false;
         },
-        get_material: function (e) {
+        get_material: function(e) {
             this.offset = e * 10 - 10;
             this.get_materials();
+        },
+        async search_materials(query) {
+            this.loading = true;
+            this.materials = await this.searchMaterial({
+                token: localStorage.getItem("crm_token"),
+                query: query,
+            });
+            this.loading = false;
         },
     },
     async mounted() {
         await this.get_materials();
         this.material_types = await this.getAllMaterialTypes({
-            token: localStorage.getItem("crm_token"),
+            token: localStorage.getItem("crm_token")
         });
     },
     computed: {
-        ...mapGetters(["getIsNewMaterial"]),
+        ...mapGetters(["getIsNewMaterial", 'getIsSearchMaterial', 'getSearchWordMaterial'])
     },
     watch: {
-        getIsNewMaterial: async function () {
+        getIsNewMaterial: async function() {
             await this.get_materials();
         },
-    },
+        getIsSearchMaterial: async function() {
+            await this.search_materials(this.getSearchWordMaterial);
+        },
+    }
 };
 </script>
 

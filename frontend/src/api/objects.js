@@ -1,6 +1,6 @@
 import axios from "axios";
 import FormData from "form-data";
-import { notification } from "../utils/helper";
+import { notification } from "@/utils/helper";
 
 export const get_all = async (data) => {
     return await axios
@@ -109,6 +109,24 @@ export const restore = async (data) => {
                 return true;
             }
             return false;
+        })
+        .catch((e) => {
+            notification("Объекты", e.response.data?.message, "error");
+            console.error(e);
+            return false;
+        })
+        .finally(() => {
+            return false;
+        });
+};
+
+export const search = async (data) => {
+    return await axios
+        .get(
+            `${process.env.VUE_APP_API_URL}/api/objects/search?token=${data.token}&query=${data.query}&user_id=${localStorage.getItem("user_id")}`
+        )
+        .then((d) => {
+            return d?.data?.data;
         })
         .catch((e) => {
             notification("Объекты", e.response.data?.message, "error");

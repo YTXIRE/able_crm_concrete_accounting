@@ -16,6 +16,7 @@ class Constants
     public static string $INCORRECT_LOGIN_OR_PASSWORD = 'Неверный логин или пароль';
     public static string $INTERNAL_SERVER_ERROR = 'Внутренняя ошибка сервера';
     public static string $PLEASE_SPECIFY_USER_TOKEN = 'Пожалуйста, укажите токен пользователя';
+    public static string $PLEASE_SPECIFY_QUERY = 'Пожалуйста, укажите строку поиска';
     public static string $SUCCESS_REQUEST = 'Успешный запрос';
     public static string $USER_SUCCESSFULLY_LOGOUT = 'Пользователь успешно вышел из системы';
     public static string $USER_WITH_TOKEN_NOT_FOUND = 'Пользователь с указанным токеном не найден';

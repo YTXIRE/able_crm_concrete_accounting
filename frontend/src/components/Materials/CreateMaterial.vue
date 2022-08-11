@@ -4,7 +4,7 @@
             <font-awesome-icon icon="plus" />
         </el-button>
         <el-dialog v-model="dialogVisible" title="Создание материала">
-            <el-form ref="createMaterial" :model="fields" label-width="120px" @submit.prevent.stop>
+            <el-form ref="createMaterial" :model="fields" label-width="130px" @submit.prevent.stop>
                 <el-form-item :disabled="loading" :rules="rules.name" label="Название" prop="name">
                     <el-input v-model="fields.name" maxlength="100" show-word-limit></el-input>
                 </el-form-item>

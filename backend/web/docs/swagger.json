@@ -3937,6 +3937,148 @@
                 }
             }
         },
+        "/api/materials/search": {
+            "get": {
+                "tags": [
+                    "materials"
+                ],
+                "summary": "Поиск материалов материалов",
+                "operationId": "search",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "description": "Токен пользователя",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "query",
+                        "in": "query",
+                        "description": "Строка поиска",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "user_id",
+                        "in": "query",
+                        "description": "ID пользователя",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "examples": {
+                                    "OK": {
+                                        "summary": "",
+                                        "value": {
+                                            "code": 200,
+                                            "status": "OK",
+                                            "data": {
+                                                "materials": [
+                                                    {
+                                                        "id": 1,
+                                                        "name": "Материал 1",
+                                                        "type": "Тип материала 1",
+                                                        "type_id": 1
+                                                    }
+                                                ],
+                                                "count": 1
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Неверные данные",
+                        "content": {
+                            "application/json": {
+                                "examples": {
+                                    "Пожалуйста, укажите токен пользователя": {
+                                        "summary": "",
+                                        "value": {
+                                            "code": 400,
+                                            "status": "Bad Request",
+                                            "message": "Пожалуйста, укажите токен пользователя"
+                                        }
+                                    },
+                                    "Максимальная длина токена может быть 100 символов": {
+                                        "summary": "",
+                                        "value": {
+                                            "code": 400,
+                                            "status": "Bad Request",
+                                            "message": "Максимальная длина токена может быть 100 символов"
+                                        }
+                                    },
+                                    "Строка поиска должна быть не пустой": {
+                                        "summary": "",
+                                        "value": {
+                                            "code": 400,
+                                            "status": "Bad Request",
+                                            "message": "Строка поиска должна быть не пустой"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Данные не найдены",
+                        "content": {
+                            "application/json": {
+                                "examples": {
+                                    "Пользователь с указанным токеном не найден": {
+                                        "summary": "",
+                                        "value": {
+                                            "code": 404,
+                                            "status": "Not Found",
+                                            "message": "Пользователь с указанным токеном не найден"
+                                        }
+                                    },
+                                    "Пользователь с указанным токеном и идентификатором не найден": {
+                                        "summary": "",
+                                        "value": {
+                                            "code": 404,
+                                            "status": "Not Found",
+                                            "message": "Пользователь с указанным токеном и идентификатором не найден"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "405": {
+                        "description": "Метод не разрешен",
+                        "content": {
+                            "application/json": {
+                                "examples": {
+                                    "Пожалуйста, используйте метод GET для этого запроса": {
+                                        "summary": "",
+                                        "value": {
+                                            "code": 405,
+                                            "status": "Method Not Allowed",
+                                            "message": "Пожалуйста, используйте метод GET для этого запроса"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/objects/get-all": {
             "get": {
                 "tags": [
@@ -4794,7 +4936,10 @@
                                                         "legal_entity_type": "ОАО",
                                                         "prefix": "fab",
                                                         "vendor": "Поставщик 1",
-                                                        "vendor_id": 1
+                                                        "vendor_id": 1,
+                                                        "material_type": "Тип материала 1",
+                                                        "material_type_id": 1,
+                                                        "units_measurement_volume_id": 1
                                                     }
                                                 },
                                                 "legal_entity_ids": {
@@ -4927,6 +5072,10 @@
                                     },
                                     "legal_entity_id": {
                                         "description": "ID юридического лица",
+                                        "type": "integer"
+                                    },
+                                    "material_type_id": {
+                                        "description": "ID типа материала",
                                         "type": "integer"
                                     },
                                     "amount": {
@@ -5104,6 +5253,10 @@
                                         "description": "ID юридического лица",
                                         "type": "integer"
                                     },
+                                    "material_type_id": {
+                                        "description": "ID типа материала",
+                                        "type": "integer"
+                                    },
                                     "amount": {
                                         "description": "Сумма оплаты",
                                         "type": "number"
@@ -5136,6 +5289,7 @@
                                             "data": {
                                                 "id": 1,
                                                 "legal_entity_id": 1,
+                                                "material_type_id": 1,
                                                 "vendor_id": 1,
                                                 "created_at": 1635843654,
                                                 "amount": 450000
