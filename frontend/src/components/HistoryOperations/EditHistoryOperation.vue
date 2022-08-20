@@ -55,6 +55,7 @@
                         :disabled="!fields.material_type_id"
                         no-data-text="Материалов не найдено. Добавьте новый"
                         placeholder="Выберите материал"
+                        filterable
                     >
                         <el-option v-for="item in filteredMaterials" :key="item.id" :label="item.name" :value="item.id">
                             <span>{{ item.name }}</span>
@@ -92,6 +93,7 @@
                         :disabled="!fields.legal_entity_id"
                         no-data-text="Объектов не найдено. Добавьте новый или восстановите старый"
                         placeholder="Выберите объект"
+                        filterable
                     >
                         <el-option v-for="item in objects" :key="item.id" :label="item.name" :value="item.id">
                             <span>{{ item.name }}</span>
