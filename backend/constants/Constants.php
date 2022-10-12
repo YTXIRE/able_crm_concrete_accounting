@@ -119,4 +119,5 @@ class Constants
     public static string $INVALID_OPERATION_TYPE = 'Неверный тип операции';
     public static string $DATE_MUST_BE_INTEGER = 'Дата должна быть числом и в формате timestamp';
     public static string $FILTER_NOT_INCLUDES_MATERIAL_AND_MATERIAL_TYPES_IN_PARALLEL = 'В составленном фильтре не могут быть одновременно материал и тип материала';
+    public static string $WRONG_TYPE_OPERATION_MUST_BE_BUY_OR_REFUND = 'Не верно указан тип операции, может быть buy или refund';
 }

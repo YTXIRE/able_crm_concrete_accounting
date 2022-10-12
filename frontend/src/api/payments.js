@@ -34,6 +34,7 @@ export const save = async (data) => {
     payments_data.append("material_type_id", data.material_type_id);
     payments_data.append("amount", data.amount);
     payments_data.append("created_at", data.created_at);
+    payments_data.append("operation_type", data.operation_type);
     payments_data.append("user_id", localStorage.getItem("user_id"));
     return await axios
         .post(`${process.env.VUE_APP_API_URL}/api/payments/create`, payments_data)
@@ -63,6 +64,7 @@ export const update = async (data) => {
             legal_entity_id: data.legal_entity_id,
             material_type_id: data.material_type_id,
             amount: data.amount,
+            operation_type: data.operation_type,
             created_at: data.created_at,
             user_id: localStorage.getItem("user_id"),
         })

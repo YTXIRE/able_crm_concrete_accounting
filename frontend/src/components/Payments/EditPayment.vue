@@ -86,6 +86,7 @@
             </el-form>
             <template #footer>
                 <span class="dialog-footer">
+                    <el-checkbox v-model="isRefund" label="Возврат"></el-checkbox>
                     <el-button @click.prevent="dialogVisible = false">Отменить</el-button>
                     <el-button :disabled="loading" type="primary" @click.prevent="submitForm"> Сохранить </el-button>
                 </span>
@@ -124,7 +125,9 @@ export default {
                 legal_entity_id: "",
                 amount: null,
                 created_at: "",
+                operation_type: "",
             },
+            isRefund: false,
             shortcuts: [
                 {
                     text: "Сегодня",
@@ -186,12 +189,16 @@ export default {
             this.$refs["updatePayment"].validate(async (valid) => {
                 if (valid) {
                     this.loading = true;
+                    if (!isNaN(parseFloat(this.fields.amount)) && !isFinite(this.fields.amount)) {
+                        this.fields.amount = this.fields.amount.replace(",", ".")
+                    }
                     const result = await this.updatePayment({
                         id: this.data.id,
                         vendor_id: this.fields.vendor_id,
                         legal_entity_id: this.fields.legal_entity_id,
                         material_type_id: this.fields.material_type_id,
-                        amount: String(this.fields.amount).replace(",", "."),
+                        operation_type: this.isRefund ? 'refund' : 'buy',
+                        amount: this.isRefund ? -this.fields.amount : this.fields.amount,
                         created_at: Math.floor(new Date(this.fields.created_at).getTime() / 1000),
                         token: localStorage.getItem("crm_token"),
                     });
@@ -203,6 +210,7 @@ export default {
                         this.fields.amount = null;
                         this.fields.created_at = new Date();
                         this.dialogVisible = false;
+                        this.isRefund = false;
                     } else {
                         this.loading = false;
                     }
@@ -253,8 +261,10 @@ export default {
         this.fields.vendor_id = check_vendors(this.data.vendor_id);
         this.fields.legal_entity_id = check_legal_entity(this.getLegalEntityId);
         this.fields.material_type_id = check_material_types(this.data.material_type_id);
-        this.fields.amount = this.data.amount;
+        this.fields.amount = this.data.amount < 0 ? -this.data.amount : this.data.amount;
+        this.fields.operation_type = this.data.operation_type;
         this.fields.created_at = new Date(this.data.created_at * 1000);
+        this.isRefund = this.data.operation_type === 'refund'
     },
     computed: {
         ...mapGetters(["getLegalEntityId"]),
@@ -267,8 +277,10 @@ export default {
             this.fields.vendor_id = e.vendor_id;
             this.fields.legal_entity_id = e.legal_entity_id;
             this.fields.material_type_id = e.material_type_id;
-            this.fields.amount = e.amount;
+            this.fields.amount = e.amount < 0 ? -e.amount : e.amount;
+            this.fields.operation_type = e.operation_type;
             this.fields.created_at = e.created_at * 1000;
+            this.isRefund = e.operation_type === 'refund'
         },
     },
 };
@@ -277,5 +289,11 @@ export default {
 <style scoped>
 .el-select {
     width: 100% !important;
+}
+
+.el-checkbox {
+    position: absolute;
+    left: 180px;
+    bottom: 30px;
 }
 </style>

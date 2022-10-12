@@ -31,19 +31,23 @@
                             empty-text="Данных нет"
                             style="width: 100%"
                         >
-                            <el-table-column label="ID" prop="id" sortable width="80" />
-                            <el-table-column label="Иконка" width="120">
+                            <el-table-column label="ID" prop="id" sortable width="60" />
+                            <el-table-column label="Иконка" width="80">
                                 <template #default="scope" class="wrapper_vendor">
                                     <font-awesome-icon :icon="[scope.row.prefix, scope.row.icon]"
                                                        class="icon size_icon" />
                                 </template>
                             </el-table-column>
-                            <el-table-column label="Поставщик" prop="vendor" sortable width="200" />
-                            <el-table-column label="Тип материала" prop="material_type" sortable width="200">
+                            <el-table-column label="Поставщик" prop="vendor" sortable width="180" />
+                            <el-table-column label="Тип операции" sortable width="140">
+                                <template #default="scope" class="color">
+                                    {{ scope.row.operation_type === 'buy' ? 'Оплата' : 'Возврат' }}
+                                </template>
                             </el-table-column>
+                            <el-table-column label="Тип материала" prop="material_type" sortable width="150" />
                             <el-table-column :sort-method="sortAmount" label="Сумма" sortable>
                                 <template #default="scope" class="wrapper_vendor">
-                                    {{ format_amount(scope.row.amount) }}
+                                    <span :class="{'color-green': color_green(scope.row.operation_type), 'color-red': color_red(scope.row.operation_type)}">{{ format_amount(-scope.row.amount) }}</span>
                                 </template>
                             </el-table-column>
                             <el-table-column :sort-method="sortDate" label="Дата оплаты" sortable>
@@ -181,6 +185,12 @@ export default {
                 id,
                 token: localStorage.getItem("crm_token")
             });
+        },
+        color_green: (operation) => {
+            return operation === 'refund';
+        },
+        color_red: (operation) => {
+            return operation === 'buy';
         }
     },
     async mounted() {
@@ -252,5 +262,15 @@ export default {
 
 .size_icon {
     margin-top: 3px;
+}
+
+.color-red {
+    color: red;
+    font-weight: bold;
+}
+
+.color-green {
+    color: green;
+    font-weight: bold;
 }
 </style>

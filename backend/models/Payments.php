@@ -37,6 +37,7 @@ class Payments extends ActiveRecord
         $model->legal_entity_id = $data['legal_entity_id'];
         $model->amount = $data['amount'];
         $model->created_at = $data['created_at'];
+        $model->operation_type = $data['operation_type'];
         $model->material_type_id = $data['material_type_id'];
         return $model->save();
     }
@@ -68,6 +69,7 @@ class Payments extends ActiveRecord
             $model->material_type_id = $data['material_type_id'];
             $model->created_at = $data['created_at'];
             $model->updated_at = $date->getTimestamp();
+            $model->operation_type = $data['operation_type'];
             return $model->save();
         }
         return false;

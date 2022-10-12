@@ -80,6 +80,7 @@
             </el-form>
             <template #footer>
                 <span class="dialog-footer">
+                    <el-checkbox v-model="isRefund" label="Возврат"></el-checkbox>
                     <el-button @click.prevent="dialogVisible = false">Отменить</el-button>
                     <el-button :disabled="loading" type="primary" @click.prevent="submitForm"> Сохранить </el-button>
                 </span>
@@ -132,6 +133,7 @@ export default {
             ],
             loading: false,
             dialogVisible: false,
+            isRefund: false,
             rules: {
                 vendor_id: [
                     {
@@ -181,7 +183,8 @@ export default {
                         vendor_id: this.fields.vendor_id,
                         legal_entity_id: this.fields.legal_entity_id,
                         material_type_id: this.fields.material_type_id,
-                        amount: this.fields.amount.replace(",", "."),
+                        operation_type: this.isRefund ? 'refund' : 'buy',
+                        amount: this.isRefund ? -this.fields.amount.replace(",", ".") : this.fields.amount.replace(",", "."),
                         created_at: Math.floor(new Date(this.fields.created_at).getTime() / 1000),
                         token: localStorage.getItem("crm_token")
                     });
@@ -193,6 +196,7 @@ export default {
                         this.fields.amount = null;
                         this.fields.created_at = new Date();
                         this.dialogVisible = false;
+                        this.isRefund = false;
                     } else {
                         this.loading = false;
                     }
@@ -223,5 +227,11 @@ export default {
 <style scoped>
 .el-select {
     width: 100% !important;
+}
+
+.el-checkbox {
+    position: absolute;
+    left: 180px;
+    bottom: 30px;
 }
 </style>

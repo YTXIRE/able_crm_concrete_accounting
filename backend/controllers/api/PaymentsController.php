@@ -261,6 +261,7 @@ class PaymentsController extends Controller
                             'amount' => $payment['amount'],
                             'created_at' => $payment['created_at'],
                             'legal_entity_id' => $payment['legal_entity_id'],
+                            'operation_type' => $payment['operation_type'],
                             'legal_entity' => $payment->legalEntity['name'],
                             'legal_entity_type' => $payment->legalEntity->type['name'],
                             'legal_entities_type_id' => $payment->legalEntity['id'],
@@ -480,6 +481,7 @@ class PaymentsController extends Controller
                 'amount' => array_key_exists('amount', $data) ? (float)($data['amount']) : 0.0,
                 'created_at' => array_key_exists('created_at', $data) ? (int)($data['created_at']) : $date->getTimestamp(),
                 'user_id' => array_key_exists('user_id', $data) ? (int)($data['user_id']) : 0,
+                'operation_type' => array_key_exists('operation_type', $data) ? trim($data['operation_type']) : '',
             ];
             if ($data['created_at'] === 0) {
                 $data['created_at'] = $date->getTimestamp();
@@ -494,8 +496,11 @@ class PaymentsController extends Controller
                 || $data['legal_entity_id'] <= 0 || !is_int($data['user_id']) || $data['user_id'] <= 0) {
                 return General::generalMethod($request, 400, $data, $this, Constants::$ID_MUST_BE_INTEGER);
             }
-            if (!is_float($data['amount']) || $data['amount'] <= 0) {
+            if (!is_float($data['amount'])) {
                 return General::generalMethod($request, 400, $data, $this, Constants::$SUM_MUST_INTEGER_AND_MUST_GREATER_ZERO);
+            }
+            if (!in_array($data['operation_type'], ['buy', 'refund'])) {
+                return General::generalMethod($request, 400, $data, $this, Constants::$WRONG_TYPE_OPERATION_MUST_BE_BUY_OR_REFUND);
             }
             if (!($data['amount'] < 1000000000)) {
                 return General::generalMethod($request, 400, $data, $this, Constants::$AMOUNT_MUST_LESS_THAN_1000000000RUBLES);
@@ -746,6 +751,7 @@ class PaymentsController extends Controller
                 'amount' => array_key_exists('amount', $data) ? (float)($data['amount']) : 0.0,
                 'created_at' => array_key_exists('created_at', $data) ? (int)($data['created_at']) : $date->getTimestamp(),
                 'user_id' => array_key_exists('user_id', $data) ? (int)($data['user_id']) : 0,
+                'operation_type' => array_key_exists('operation_type', $data) ? trim($data['operation_type']) : '',
             ];
             if ($data['created_at'] === 0) {
                 $data['created_at'] = $date->getTimestamp();
@@ -760,8 +766,11 @@ class PaymentsController extends Controller
                 || !is_int($data['user_id']) || $data['user_id'] <= 0 || !is_int($data['id']) || $data['id'] <= 0) {
                 return General::generalMethod($request, 400, $data, $this, Constants::$ID_MUST_BE_INTEGER);
             }
-            if (!is_float($data['amount']) || $data['amount'] <= 0) {
+            if (!is_float($data['amount'])) {
                 return General::generalMethod($request, 400, $data, $this, Constants::$SUM_MUST_INTEGER_AND_MUST_GREATER_ZERO);
+            }
+            if (!in_array($data['operation_type'], ['buy', 'refund'])) {
+                return General::generalMethod($request, 400, $data, $this, Constants::$WRONG_TYPE_OPERATION_MUST_BE_BUY_OR_REFUND);
             }
             if (!($data['amount'] < 1000000000)) {
                 return General::generalMethod($request, 400, $data, $this, Constants::$AMOUNT_MUST_LESS_THAN_1000000000RUBLES);
@@ -775,7 +784,7 @@ class PaymentsController extends Controller
             if (!LegalEntities::checkIsNotExitsId($data['legal_entity_id'])) {
                 return General::generalMethod($request, 404, $data, $this, Constants::$LEGAL_ENTITY_WITH_ID_NOT_FOUND);
             }
-            if (!LegalEntities::checkIsNotExitsId($data['material_type_id'])) {
+            if (!MaterialTypes::checkIsNotExitsId($data['material_type_id'])) {
                 return General::generalMethod($request, 404, $data, $this, Constants::$MATERIAL_WITH_ID_NOT_FOUND);
             }
             if (!Payments::checkIsNotExitsId($data['id'])) {
@@ -793,6 +802,7 @@ class PaymentsController extends Controller
                 'vendor_id' => $data['vendor_id'],
                 'legal_entity_id' => $data['legal_entity_id'],
                 'material_type_id' => $data['material_type_id'],
+                'operation_type' => $data['operation_type'],
                 'amount' => $data['amount'],
                 'created_at' => $data['created_at'],
             ], $request, $this);
