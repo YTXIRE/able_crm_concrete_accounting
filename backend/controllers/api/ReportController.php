@@ -210,7 +210,7 @@ class ReportController extends Controller
                         Helpers::getMonth(date('m', $operation['created_at'])) . " " .
                         date('Y', $operation['created_at']);
                     if (array_key_exists($date, $final_labels) && $operation->object['is_archive'] === 0) {
-                        if (array_key_exists($operation['vendor_id'], $tmp_operations)  && array_key_exists($operation['legal_entity_id'], $tmp_operations[$operation['vendor_id']])) {
+                        if (array_key_exists($operation['vendor_id'], $tmp_operations) && array_key_exists($operation['legal_entity_id'], $tmp_operations[$operation['vendor_id']])) {
                             $tmp_operations[$operation['vendor_id']][$operation['legal_entity_id']] += (float)$operation['total'];
                         } else {
                             $tmp_operations[$operation['vendor_id']][$operation['legal_entity_id']] = (float)$operation['total'];
@@ -497,6 +497,7 @@ class ReportController extends Controller
                 'less_or_equal' => '<='
             ];
             $operations = [];
+            $legal_entity_filters = [];
             foreach ($data['filters'] as $filter) {
                 switch ($filter['field']) {
                     case 'vendor':
@@ -582,6 +583,14 @@ class ReportController extends Controller
                             'unity' => $filter['unity']
                         ];
                         break;
+                    case 'legal_entity':
+                        $legal_entity_filters = [
+                            'field' => 'legal_entity',
+                            'value' => $filter['value'],
+                            'operation' => $operations_indication[$filter['operation']],
+                            'unity' => $filter['unity']
+                        ];
+                        break;
                 }
             }
             $history_operations = [];
@@ -601,33 +610,12 @@ class ReportController extends Controller
                             'name' => null,
                         ];
                     }
-                    $history_operations[] = [
-                        'id' => $value['id'],
-                        'vendor' => [
-                            'id' => $value['vendor_id'],
-                            'name' => $value->vendor['name'],
-                            'icon' => $value->vendor->icon['name'],
-                            'prefix' => $value->vendor->icon['prefix'],
-                        ],
-                        'object' => [
-                            'id' => $value['object_id'],
-                            'name' => $value->object['name'],
-                        ],
-                        'material' => [
-                            'id' => $value['material_id'],
-                            'name' => $value->material['name'],
-                            'type' => $value->material->materialType['name'],
-                            'type_id' => $value->material->materialType['id'],
-                            'units' => $value->material->materialType->units['name']
-                        ],
-                        'volume' => (float)$value['volume'],
-                        'created_at' => $value['created_at'],
-                        'confirmed_data' => $value['confirmed_data'],
-                        'price' => (float)$value['price'],
-                        'total' => (float)$value['total'],
-                        'file' => $file,
-                        'comment' => $value['comment']
-                    ];
+                    if (count($legal_entity_filters) && $legal_entity_filters['value'] === $value->legalEntity['id']) {
+                        $history_operations = $this->getOperations($value, $file, $history_operations);
+                    }
+                    if (!count($legal_entity_filters)) {
+                        $history_operations = $this->getOperations($value, $file, $history_operations);
+                    }
                 }
             }
             return General::success($history_operations ?: [], $request, $this);
@@ -1482,5 +1470,49 @@ class ReportController extends Controller
         } catch (Exception $e) {
             return General::generalMethod($request, 500, $e, $this, Constants::$INTERNAL_SERVER_ERROR);
         }
+    }
+
+    /**
+     * @param $value
+     * @param array $file
+     * @param array $history_operations
+     * @return array
+     */
+    public function getOperations($value, array $file, array $history_operations): array
+    {
+        $history_operations[] = [
+            'id' => $value['id'],
+            'vendor' => [
+                'id' => $value['vendor_id'],
+                'name' => $value->vendor['name'],
+                'icon' => $value->vendor->icon['name'],
+                'prefix' => $value->vendor->icon['prefix'],
+            ],
+            'object' => [
+                'id' => $value['object_id'],
+                'name' => $value->object['name'],
+            ],
+            'material' => [
+                'id' => $value['material_id'],
+                'name' => $value->material['name'],
+                'type' => $value->material->materialType['name'],
+                'type_id' => $value->material->materialType['id'],
+                'units' => $value->material->materialType->units['name']
+            ],
+            'volume' => (float)$value['volume'],
+            'created_at' => $value['created_at'],
+            'confirmed_data' => $value['confirmed_data'],
+            'price' => (float)$value['price'],
+            'total' => (float)$value['total'],
+            'file' => $file,
+            'comment' => $value['comment'],
+            'legal_entity' => [
+                "id" => $value->legalEntity['id'],
+                "legal_entities_type_id" => $value->legalEntity['legal_entities_type_id'],
+                "legal_entities_type" => $value->legalEntity->type['name'],
+                "name" => $value->legalEntity['name'],
+            ],
+        ];
+        return $history_operations;
     }
 }

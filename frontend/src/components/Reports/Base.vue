@@ -52,7 +52,13 @@
                                 <tr v-for="value in item.debt" :key="value">
                                     <td>
                                         {{ value.legal_entity }}:
-                                        <span :class="[String(value.total).startsWith('-') ? 'blue' : 'red']">
+                                        <span :class="[
+                                            value.value > 0
+                                                ? 'red'
+                                                : value.value < 0
+                                                ? 'blue'
+                                                : '',
+                                        ]">
                                         {{ value.total }}
                                     </span>
                                     </td>
@@ -136,13 +142,14 @@ export default {
                     if (key === "Взяли") {
                         take.push({
                             legal_entity: value,
-                            total: this.format_price(base_report[item][key][value])
+                            total: this.format_price(base_report[item][key][value]),
                         });
                     }
                     if (key === "Долг") {
                         debt.push({
                             legal_entity: value,
-                            total: this.format_price(base_report[item][key][value])
+                            total: this.format_price(base_report[item][key][value]),
+                            value: base_report[item][key][value],
                         });
                     }
                 }
