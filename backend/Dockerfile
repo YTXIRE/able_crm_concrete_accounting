@@ -29,7 +29,7 @@ WORKDIR /var/www/html
 RUN chmod 777 /var/www/html
 
 RUN chown www-data:www-data /var/www/html/web
-RUN chown www-data:www-data /var/www/html/web/files
+# RUN chown www-data:www-data /var/www/html/web/files
 RUN chown www-data:www-data /tmp
 
 RUN a2enmod rewrite
