@@ -9,7 +9,7 @@ COPY ./example.env.production /var/www/html/.env.production
 
 WORKDIR /var/www/html
 
-COPY ./dist /var/www/html
+COPY ./dist /var/www/html/dist
 
 COPY ./000-default.conf /etc/apache2/sites-enabled/000-default.conf
 
