@@ -1,6 +1,6 @@
 import axios from "axios";
 import FormData from "form-data";
-import { notification } from "../utils/helper";
+import { notification } from "@/utils/helper";
 
 export const login = async (data) => {
     const auth_data = new FormData();
