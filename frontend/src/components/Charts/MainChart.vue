@@ -77,58 +77,6 @@
                 </div>
             </div>
             <br />
-            <div>
-                <el-row v-if="Object.keys(amountMaterialsOnObject).length" :gutter="24">
-                    <el-col :span="18">
-                        <el-card shadow="hover">
-                            <AmountMaterialsOnObject v-if="loaded" :data="amountMaterialsOnObject" />
-                        </el-card>
-                    </el-col>
-                    <el-col :span="6">
-                        <el-card class="max_h_amount" shadow="hover">
-                            <table
-                                class="debt_data"
-                            >
-                                <tr
-                                    v-for="material in Object.keys(data.amount_materials_on_object.operations)"
-                                    :key="material"
-                                    class="table_amount_material"
-                                >
-                                    <td class="headers_table_debt">{{ material }}</td>
-                                    <td class="green">
-                                        {{ format_volume(data.amount_materials_on_object.operations[material]) }}
-                                        {{
-                                            volume_format(
-                                                data.amount_materials_on_object.labels[material].toLowerCase()
-                                            )
-                                        }}
-                                    </td>
-                                </tr>
-                            </table>
-                        </el-card>
-                    </el-col>
-                </el-row>
-                <div v-else>
-                    <el-card shadow="hover">
-                        <div>Данных по объектам нет</div>
-                    </el-card>
-                </div>
-            </div>
-            <br />
-            <div>
-                <el-row v-if="Object.keys(volumeOnVendorByObjects).length" :gutter="24">
-                    <el-col :span="24">
-                        <el-card shadow="hover">
-                            <VolumeOnVendorByObjects v-if="loaded" :data="volumeOnVendorByObjects" />
-                        </el-card>
-                    </el-col>
-                </el-row>
-                <div v-else>
-                    <el-card shadow="hover">
-                        <div>Данных по операция нет</div>
-                    </el-card>
-                </div>
-            </div>
         </div>
         <div v-else>
             <el-card shadow="hover">
@@ -140,8 +88,6 @@
 
 <script>
 import OperationsWithDays from "@/components/Charts/OperationsWithDays.vue";
-import AmountMaterialsOnObject from "@/components/Charts/AmountMaterialsOnObject.vue";
-import VolumeOnVendorByObjects from "@/components/Charts/VolumeOnVendorByObjects.vue";
 
 import { mapActions, mapGetters } from "vuex";
 import { formatNumber, formatVolume, volume } from "@/utils/helper.js";
@@ -149,8 +95,6 @@ import { formatNumber, formatVolume, volume } from "@/utils/helper.js";
 export default {
     components: {
         OperationsWithDays,
-        AmountMaterialsOnObject,
-        VolumeOnVendorByObjects
     },
     data() {
         return {
@@ -162,8 +106,6 @@ export default {
                 operations: [],
                 labels: []
             },
-            amountMaterialsOnObject: [],
-            volumeOnVendorByObjects: [],
             colors: {},
             loaded: false,
             loading: false
@@ -218,22 +160,6 @@ export default {
             }
             this.operationsByMonths.operations = operations;
             this.operationsByMonths.labels = this.data.operations_by_months.labels;
-            for (let item in this.data.amount_materials_on_object.operations) {
-                this.amountMaterialsOnObject.push({
-                    label: item,
-                    backgroundColor: this.randomColor(),
-                    data: {
-                        [item]: this.data.amount_materials_on_object.operations[item]
-                    }
-                });
-            }
-            for (let item in this.data.volume_on_vendor_by_objects) {
-                this.volumeOnVendorByObjects.push({
-                    label: item,
-                    backgroundColor: this.colors[item],
-                    data: this.data.volume_on_vendor_by_objects[item]
-                });
-            }
             this.setIsUpdated(Math.random());
             this.loaded = true;
             this.loading = false;

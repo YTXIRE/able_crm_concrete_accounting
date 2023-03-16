@@ -57,12 +57,15 @@ export default {
                 this.$router.push("/");
             }
         },
+        saveCurrentMenu: function(link) {
+            localStorage.setItem('currentLink', link)
+        },
         settings: function () {
             this.setIndexMenu("0");
             this.setActiveSettings(true);
             this.setActiveUserSettings(false);
             localStorage.setItem("currentMenu", "0");
-            this.$router.push("/settings");
+            this.saveCurrentMenu("/settings");
         },
         user_settings: function () {
             this.setIndexMenu("0");
@@ -70,6 +73,7 @@ export default {
             this.setActiveUserSettings(true);
             localStorage.setItem("currentMenu", "999");
             this.$router.push("/user_settings");
+            this.saveCurrentMenu("/user_settings");
         },
     },
     mounted() {

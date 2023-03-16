@@ -70,24 +70,6 @@ class DashboardController extends Controller
      *                                  }
      *                              }
      *                          },
-     *                          "amount_materials_on_object": {
-     *                              "operations": {
-     *                                  "Бетон 2": 22467,
-     *                                  "Цемент 2": 12999,
-     *                                  "Бетон 1": 50
-     *                              },
-     *                              "labels": {
-     *                                  "Бетон 2": "Кубический метр",
-     *                                  "Цемент 2": "Тонна",
-     *                                  "Бетон 1": "Кубический метр"
-     *                              }
-     *                          },
-     *                          "volume_on_vendor_by_objects": {
-     *                               "Поставщик 1": {
-     *                                  "Объект 1": 13765,
-     *                                  "Объект 2": 16701
-     *                              }
-     *                          }
      *                      }
      *                  }
      *              )
@@ -321,45 +303,9 @@ class DashboardController extends Controller
                     }
                 }
             }
-            $materials_on_object = [
-                'operations' => [],
-                'labels' => []
-            ];
-            foreach ($vendors as $vendor) {
-                $operations = HistoryOperation::getAllObjectsByVendor($vendor['id']);
-                foreach ($operations as $operation) {
-                    if ($operation->object['is_archive'] === 0) {
-                        if (array_key_exists($operation->material['name'], $materials_on_object['operations'])) {
-                            $materials_on_object['operations'][$operation->material['name']] += $operation['volume'];
-                        } else {
-                            $materials_on_object['operations'][$operation->material['name']] = $operation['volume'];
-                        }
-                        $materials_on_object['labels'][$operation->material['name']] = $operation->material->materialType->units['name'];
-                    }
-                }
-            }
-            $volume_on_vendor_by_objects = [];
-            foreach ($vendors as $vendor) {
-                $operations = HistoryOperation::getAllObjectsByVendor($vendor['id']);
-                foreach ($operations as $operation) {
-                    if ($operation->object['is_archive'] === 0) {
-                        if (array_key_exists($operation->vendor['name'], $volume_on_vendor_by_objects)) {
-                            if (array_key_exists($operation->object['name'], $volume_on_vendor_by_objects[$operation->vendor['name']])) {
-                                $volume_on_vendor_by_objects[$operation->vendor['name']][$operation->object['name']] += $operation['volume'];
-                            } else {
-                                $volume_on_vendor_by_objects[$operation->vendor['name']][$operation->object['name']] = $operation['volume'];
-                            }
-                        } else {
-                            $volume_on_vendor_by_objects[$operation->vendor['name']] = [$operation->object['name'] => $operation['volume']];
-                        }
-                    }
-                }
-            }
             $reformat_operations['labels'] = array_keys(array_slice($final_filtered_label, 0, $period));
             $result['debts'] = $debts;
             $result['operations_by_months'] = $reformat_operations;
-            $result['amount_materials_on_object'] = $materials_on_object;
-            $result['volume_on_vendor_by_objects'] = $volume_on_vendor_by_objects;
             return General::success($result ?: [], $request, $this);
         } catch (Exception $e) {
             return General::generalMethod($request, 500, $e, $this, Constants::$INTERNAL_SERVER_ERROR);
