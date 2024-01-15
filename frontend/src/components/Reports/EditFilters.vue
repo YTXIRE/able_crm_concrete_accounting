@@ -72,7 +72,7 @@
                                     <el-option
                                         v-for="item in filters_data[block.field]"
                                         :key="item.id"
-                                        :label="item.full_name"
+                                        :label="item.name"
                                         :value="item.id"
                                     >
                                     </el-option>
