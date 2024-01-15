@@ -65,6 +65,7 @@ export default {
             this.setActiveSettings(true);
             this.setActiveUserSettings(false);
             localStorage.setItem("currentMenu", "0");
+            this.$router.push("/settings");
             this.saveCurrentMenu("/settings");
         },
         user_settings: function () {
