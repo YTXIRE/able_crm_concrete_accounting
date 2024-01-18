@@ -12,6 +12,9 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import ru from "element-plus/es/locale/lang/ru";
 import excel from "vue-excel-export";
 import print from "vue3-print-nb";
+import * as dayjs from "dayjs";
+
+dayjs.Ls.en.weekStart = 1
 
 library.add(fas, fab, far);
 
