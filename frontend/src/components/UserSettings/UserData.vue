@@ -1,13 +1,13 @@
 <template>
     <el-form ref="dynamicValidateForm" :model="fields" label-width="80px">
         <el-form-item :disabled="loading" :rules="rules.login" label="Логин" prop="login">
-            <el-input v-model="fields.login" maxlength="100" show-word-limit></el-input>
+            <el-input v-model="fields.login" maxlength="100" show-word-limit :disabled="!is_demo"></el-input>
         </el-form-item>
         <el-form-item :disabled="loading" :rules="rules.email" label="Email" prop="email">
-            <el-input v-model="fields.email" maxlength="100" show-word-limit></el-input>
+            <el-input v-model="fields.email" maxlength="100" show-word-limit :disabled="!is_demo"></el-input>
         </el-form-item>
         <el-form-item>
-            <el-button :disabled="loading" type="primary" @click="submitForm('dynamicValidateForm')">
+            <el-button :disabled="loading || !is_demo" type="primary" @click="submitForm('dynamicValidateForm')">
                 Сохранить
             </el-button>
         </el-form-item>
@@ -21,6 +21,7 @@ export default {
     data() {
         return {
             loading: false,
+            is_demo: false,
             fields: {
                 login: "",
                 email: "",
@@ -73,6 +74,7 @@ export default {
         const data = JSON.parse(localStorage.getItem("user_data"));
         this.fields.email = data.email;
         this.fields.login = data.login;
+        this.is_demo = +localStorage.getItem("is_demo") === 0;
     },
 };
 </script>

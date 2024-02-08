@@ -1,6 +1,6 @@
 <template>
     <div>
-        <el-button type="primary" @click="dialogVisible = true">
+        <el-button type="primary" @click="dialogVisible = true" :disabled="!is_demo">
             <font-awesome-icon icon="edit" />
         </el-button>
         <el-dialog v-model="dialogVisible" title="Редактирование материала">
@@ -51,6 +51,7 @@ export default {
             },
             options: [],
             loading: false,
+            is_demo: false,
             dialogVisible: false,
             rules: {
                 name: [
@@ -100,6 +101,7 @@ export default {
     async mounted() {
         this.fields.name = this.data.name;
         this.fields.type_id = this.data.type_id;
+        this.is_demo = +localStorage.getItem("is_demo") === 0;
     },
     watch: {
         data(e) {

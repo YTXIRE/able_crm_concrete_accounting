@@ -1134,10 +1134,6 @@
                                     "confirmed_data": {
                                         "description": "Подтверждение данных",
                                         "type": "integer"
-                                    },
-                                    "file": {
-                                        "description": "Документ об операци",
-                                        "type": "file"
                                     }
                                 },
                                 "type": "object"
@@ -1413,10 +1409,6 @@
                                     "confirmed_data": {
                                         "description": "Подтверждение данных",
                                         "type": "integer"
-                                    },
-                                    "file": {
-                                        "description": "Документ об операци",
-                                        "type": "file"
                                     }
                                 },
                                 "type": "object"
@@ -7369,7 +7361,10 @@
                                                         "login": "user",
                                                         "email": "test@it-paradise.com",
                                                         "created_at": 1635348594,
-                                                        "last_login_at": 1635888274
+                                                        "last_login_at": 1635888274,
+                                                        "is_demo": 0,
+                                                        "is_deleted": 0,
+                                                        "demo_activation_date": 0
                                                     }
                                                 ],
                                                 "count": 1
@@ -7522,7 +7517,10 @@
                                                 "avatar": "/web/files/yW2onkqZvYqRU71mJ3EehRIOFJuZXN1bYIc1UPYQWaQYXh9llwgDcwRFuIOMmNWg.png",
                                                 "rights": {
                                                     "is_admin": true
-                                                }
+                                                },
+                                                "is_demo": false,
+                                                "is_deleted": false,
+                                                "demo_activation_date": 0
                                             }
                                         }
                                     }
@@ -7640,6 +7638,10 @@
                                     "user_id": {
                                         "description": "ID пользователя",
                                         "type": "integer"
+                                    },
+                                    "is_demo": {
+                                        "description": "Демо пользователь",
+                                        "type": "integer"
                                     }
                                 },
                                 "type": "object"
@@ -7662,7 +7664,8 @@
                                                 "id": 1,
                                                 "login": "user",
                                                 "email": "test@it-paradise.com",
-                                                "created_at": 1635348594
+                                                "created_at": 1635348594,
+                                                "is_demo": 0
                                             }
                                         }
                                     }
@@ -7847,6 +7850,10 @@
                                     },
                                     "user_id": {
                                         "description": "ID пользователя",
+                                        "type": "integer"
+                                    },
+                                    "is_demo": {
+                                        "description": "Демо пользователь",
                                         "type": "integer"
                                     }
                                 },

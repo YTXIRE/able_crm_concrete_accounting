@@ -6,7 +6,7 @@ RUN apt-get install -fyqq \
     bash curl wget rsync ca-certificates openssl ssh git tzdata openntpd \
     libxrender1 fontconfig libc6 \
     mariadb-client gnupg binutils-gold autoconf \
-    g++ gcc gnupg libgcc1 linux-headers-amd64 make python
+    g++ gcc gnupg libgcc1 make python
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer \
  && chmod 755 /usr/bin/composer

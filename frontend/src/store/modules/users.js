@@ -27,10 +27,12 @@ export default {
                 id: payload.id,
                 token: payload.token,
                 password: payload.password,
+                is_demo: payload.is_demo,
             });
             if (result) {
                 await get_info(localStorage.getItem("crm_token"));
                 dispatch("setLogin", JSON.parse(localStorage.getItem("user_data"))?.login);
+                dispatch("setIsCreateUser", Math.random());
                 return true;
             }
             return false;
@@ -54,6 +56,7 @@ export default {
                 login: payload.login,
                 email: payload.email,
                 password: payload.password,
+                is_demo: payload.is_demo,
             });
             if (result) {
                 dispatch("setIsCreateUser", Math.random());

@@ -1,6 +1,6 @@
 <template>
     <div>
-        <el-button type="success" circle @click="dialogVisible = true">
+        <el-button type="success" circle @click="dialogVisible = true" :disabled="!is_demo">
             <font-awesome-icon icon="plus" />
         </el-button>
         <el-dialog v-model="dialogVisible" title="Создание типа материала">
@@ -56,6 +56,7 @@ export default {
                 units_measurement_volume_id: "",
             },
             loading: false,
+            is_demo: false,
             dialogVisible: false,
             rules: {
                 name: [
@@ -101,6 +102,9 @@ export default {
             });
         },
     },
+    mounted() {
+        this.is_demo = +localStorage.getItem("is_demo") === 0;
+    }
 };
 </script>
 <style scoped>

@@ -12,6 +12,7 @@ export const login = async (data) => {
             if (d?.data?.data?.token) {
                 localStorage.setItem("crm_token", d?.data?.data?.token);
                 localStorage.setItem("user_id", d?.data?.data?.id);
+                localStorage.setItem("is_demo", d?.data?.data?.is_demo);
                 return true;
             }
             return false;
@@ -38,6 +39,8 @@ export const logout = async (token) => {
             localStorage.removeItem("user_data");
             localStorage.removeItem("user_id");
             localStorage.removeItem("currentMenu");
+            localStorage.removeItem("currentLink");
+            localStorage.removeItem("is_demo");
             return true;
         })
         .catch((e) => {

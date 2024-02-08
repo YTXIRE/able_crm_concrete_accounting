@@ -14,6 +14,9 @@
                 <el-form-item :disabled="loading" :rules="rules.password" label="Пароль" prop="password">
                     <el-input v-model="fields.password" maxlength="100" show-word-limit type="password"></el-input>
                 </el-form-item>
+                <el-form-item :disabled="loading" :rules="rules.is_demo" label="Демо" prop="is_demo">
+                    <el-checkbox v-model="fields.is_demo" :label="fields.is_demo ? 'Да' : 'Нет'" class="is_demo"></el-checkbox>
+                </el-form-item>
             </el-form>
             <template #footer>
                 <span class="dialog-footer">
@@ -35,6 +38,7 @@ export default {
                 login: "",
                 email: "",
                 password: "",
+                is_demo: false,
             },
             loading: false,
             dialogVisible: false,
@@ -71,6 +75,13 @@ export default {
                         min: 5,
                     },
                 ],
+                is_demo: [
+                    {
+                        required: true,
+                        message: "Пожалуйста, выберите демо режим",
+                        trigger: "change",
+                    },
+                ],
             },
         };
     },
@@ -84,6 +95,7 @@ export default {
                         password: this.fields.password,
                         login: this.fields.login,
                         email: this.fields.email,
+                        is_demo: this.fields.is_demo ? 1 : 0,
                         token: localStorage.getItem("crm_token"),
                     });
                     if (result) {
@@ -91,6 +103,7 @@ export default {
                         this.fields.login = "";
                         this.fields.email = "";
                         this.fields.password = "";
+                        this.fields.is_demo = false;
                         this.dialogVisible = false;
                     } else {
                         this.loading = false;
@@ -105,4 +118,8 @@ export default {
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+.is_demo {
+    display: flex;
+}
+</style>

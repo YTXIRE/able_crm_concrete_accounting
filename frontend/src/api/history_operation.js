@@ -76,7 +76,6 @@ export const save = async (data) => {
     historyOperation.append("created_at", data.created_at);
     historyOperation.append("is_debt", data.is_debt);
     historyOperation.append("confirmed_data", data.confirmed_data);
-    historyOperation.append("file", data.file);
     return await axios
         .post(`${process.env.VUE_APP_API_URL}/api/history-operation/create`, historyOperation)
         .then((d) => {
@@ -110,9 +109,6 @@ export const update = async (data) => {
     historyOperation.append("comment", data.comment);
     historyOperation.append("created_at", data.created_at);
     historyOperation.append("confirmed_data", data.confirmed_data);
-    if (data.file) {
-        historyOperation.append("file", data.file);
-    }
     historyOperation.append("id", data.id);
     return await axios
         .post(`${process.env.VUE_APP_API_URL}/api/history-operation/update`, historyOperation)

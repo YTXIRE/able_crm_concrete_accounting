@@ -597,19 +597,6 @@ class ReportController extends Controller
             $history = HistoryOperation::getOperationsByField($operations);
             foreach ($history as $value) {
                 if ($value->vendor['is_archive'] === 0 && $value->object['is_archive'] === 0) {
-                    if ($value['file_id']) {
-                        $file = [
-                            'id' => $value['file_id'],
-                            'link' => $value->file['filename'],
-                            'name' => $value->file['name'],
-                        ];
-                    } else {
-                        $file = [
-                            'id' => null,
-                            'link' => null,
-                            'name' => null,
-                        ];
-                    }
                     if (count($legal_entity_filters) && $legal_entity_filters['value'] === $value->legalEntity['id']) {
                         $history_operations = $this->getOperations($value, $file, $history_operations);
                     }

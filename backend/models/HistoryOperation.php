@@ -17,7 +17,6 @@ use yii\db\ActiveRecord;
  * @property float|null $volume
  * @property float|null $price
  * @property float|null $total
- * @property int|null $file_id
  * @property string|null $comment
  * @property int|null $created_at
  * @property int|null $updated_at
@@ -88,7 +87,6 @@ class HistoryOperation extends ActiveRecord
         $model->price = $data['price'];
         $model->volume = $data['volume'];
         $model->total = $data['total'];
-        $model->file_id = $data['file_id'];
         $model->comment = $data['comment'];
         $model->created_at = $data['created_at'];
         $model->is_debt = $data['is_debt'];
@@ -115,9 +113,6 @@ class HistoryOperation extends ActiveRecord
         $model->price = $data['price'];
         $model->volume = $data['volume'];
         $model->total = $data['total'];
-        if ($data['file_id']) {
-            $model->file_id = $data['file_id'];
-        }
         $model->comment = $data['comment'];
         $model->created_at = $data['created_at'];
         $model->confirmed_data = $data['confirmed_data'];
@@ -153,7 +148,7 @@ class HistoryOperation extends ActiveRecord
     public function rules(): array
     {
         return [
-            [['vendor_id', 'material_id', 'created_at', 'updated_at', 'file_id', 'object_id', 'is_debt', 'confirmed_data', 'legal_entity_id'], 'integer'],
+            [['vendor_id', 'material_id', 'created_at', 'updated_at', 'object_id', 'is_debt', 'confirmed_data', 'legal_entity_id'], 'integer'],
             [['volume', 'price', 'total'], 'number'],
             [['comment'], 'string'],
         ];
@@ -173,7 +168,6 @@ class HistoryOperation extends ActiveRecord
             'volume' => 'Volume',
             'price' => 'Price',
             'total' => 'Total',
-            'file_id' => 'File ID',
             'comment' => 'Comment',
             'created_at' => 'Created At',
             'updated_at' => 'Updated At',
@@ -185,11 +179,6 @@ class HistoryOperation extends ActiveRecord
     public function getVendor(): ActiveQuery
     {
         return $this->hasOne(Vendors::class, ['id' => 'vendor_id']);
-    }
-
-    public function getFile(): ActiveQuery
-    {
-        return $this->hasOne(Files::class, ['id' => 'file_id']);
     }
 
     public function getMaterial(): ActiveQuery

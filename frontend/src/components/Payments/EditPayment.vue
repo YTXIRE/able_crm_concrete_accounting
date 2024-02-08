@@ -1,6 +1,6 @@
 <template>
     <div>
-        <el-button type="primary" @click="dialogVisible = true">
+        <el-button type="primary" @click="dialogVisible = true" :disabled="!is_demo">
             <font-awesome-icon icon="edit" />
         </el-button>
         <el-dialog v-model="dialogVisible" title="Редактирование платежа">
@@ -128,6 +128,7 @@ export default {
                 operation_type: "",
             },
             isRefund: false,
+            is_demo: false,
             shortcuts: [
                 {
                     text: "Сегодня",
@@ -265,6 +266,7 @@ export default {
         this.fields.operation_type = this.data.operation_type;
         this.fields.created_at = new Date(this.data.created_at * 1000);
         this.isRefund = this.data.operation_type === 'refund'
+        this.is_demo = +localStorage.getItem("is_demo") === 0;
     },
     computed: {
         ...mapGetters(["getLegalEntityId"]),

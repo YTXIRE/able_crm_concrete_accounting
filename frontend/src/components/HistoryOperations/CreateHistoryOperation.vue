@@ -1,6 +1,6 @@
 <template>
     <div>
-        <el-button circle type="success" @click="dialogVisible = true">
+        <el-button circle type="success" @click="dialogVisible = true" :disabled="!is_demo">
             <font-awesome-icon icon="plus" />
         </el-button>
         <el-dialog v-model="dialogVisible" title="Создание новой операции">
@@ -170,15 +170,6 @@
                         type="textarea"
                     ></el-input>
                 </el-form-item>
-                <el-form-item label="Документ" prop="file">
-                    <el-upload ref="upload" :auto-upload="false" action="#" class="upload">
-                        <template #trigger>
-                            <el-button size="small" type="primary">Выберите файл</el-button>
-                        </template>
-                        <span></span>
-                        <span></span>
-                    </el-upload>
-                </el-form-item>
             </el-form>
             <template v-if="active === 2" #footer>
                 <span class="dialog-footer">
@@ -242,6 +233,7 @@ export default {
             active: 0,
             options: [],
             loading: false,
+            is_demo: false,
             dialogVisible: false,
             isDebtVisible: false,
             isDebt: false,
@@ -339,7 +331,6 @@ export default {
             this.$refs["createLegalEntities"].validate(async (valid) => {
                 if (valid) {
                     this.loading = true;
-                    const files = document.querySelector(".el-upload__input").files[0];
                     const result = await this.saveHistoryOperation({
                         token: localStorage.getItem("crm_token"),
                         vendor_id: this.fields.vendor_id,
@@ -352,7 +343,6 @@ export default {
                         comment: this.fields.comment,
                         confirmed_data: this.fields.confirmed_data,
                         is_debt: Number(this.isDebt),
-                        file: files,
                         created_at: Math.floor(new Date(this.fields.created_at).getTime() / 1000),
                     });
                     if (result) {
@@ -402,6 +392,7 @@ export default {
         this.isDebtVisible = await this.getDebt({
             token: localStorage.getItem("crm_token"),
         });
+        this.is_demo = +localStorage.getItem("is_demo") === 0;
     },
     watch: {
         material_type_id() {

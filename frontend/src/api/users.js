@@ -34,6 +34,7 @@ export const update_info = async (data) => {
             email: data.email,
             token: data.token,
             password: data.password,
+            is_demo: data.is_demo,
             user_id: Number(localStorage.getItem("user_id")),
         })
         .then((d) => {
@@ -130,6 +131,7 @@ export const create = async (data) => {
     user_data.append("login", data.login);
     user_data.append("email", data.email);
     user_data.append("password", data.password);
+    user_data.append("is_demo", data.is_demo);
     user_data.append("user_id", Number(localStorage.getItem("user_id")));
     return await axios
         .post(`${process.env.VUE_APP_API_URL}/api/users/create`, user_data)

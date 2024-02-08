@@ -10,6 +10,7 @@ use yii\db\ActiveRecord;
  * @property int $id
  * @property int|null $user_id
  * @property int|null $is_admin
+ * @property int|null $is_report
  */
 class Rights extends ActiveRecord
 {

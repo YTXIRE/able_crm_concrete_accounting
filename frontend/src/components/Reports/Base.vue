@@ -4,13 +4,13 @@
         <div class="filters">
             <div class="generate">
                 <export-excel :data="export_excel_vendor" :fields="excel_fields" :name="get_excel_name" class="excel">
-                    <el-button :disabled="export_excel_vendor.length === 0" type="success"> Сохранить в Excel
+                    <el-button :disabled="export_excel_vendor.length === 0 || !is_demo" type="success"> Сохранить в Excel
                     </el-button>
                 </export-excel>
-                <el-button :disabled="filtered_vendors.length === 0" type="danger" @click="createPDF">
+                <el-button :disabled="filtered_vendors.length === 0 || !is_demo" type="danger" @click="createPDF">
                     Сохранить в PDF
                 </el-button>
-                <el-button v-print="printObj" :disabled="filtered_vendors.length === 0" type="info"> Печать</el-button>
+                <el-button v-print="printObj" :disabled="filtered_vendors.length === 0 || !is_demo" type="info"> Печать</el-button>
             </div>
         </div>
         <el-divider />
@@ -85,6 +85,7 @@ export default {
         return {
             vendors: [],
             loading: false,
+            is_demo: false,
             export_excel_vendor: [],
             printObj: {
                 id: "print_base_vendors",
@@ -162,6 +163,7 @@ export default {
             });
         }
         this.loading = false;
+        this.is_demo = +localStorage.getItem("is_demo") === 0;
     },
     computed: {
         filtered_vendors() {

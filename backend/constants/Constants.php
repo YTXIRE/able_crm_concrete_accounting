@@ -21,6 +21,7 @@ class Constants
     public static string $USER_SUCCESSFULLY_LOGOUT = 'Пользователь успешно вышел из системы';
     public static string $USER_WITH_TOKEN_NOT_FOUND = 'Пользователь с указанным токеном не найден';
     public static string $ID_MUST_BE_INTEGER = 'Идентификатор должен быть целым числом и должен быть больше нуля';
+    public static string $DEMO_ID_MUST_BE_INTEGER = 'Параметр режима должен быть целым числом и должен быть больше нуля';
     public static string $USER_WITH_ID_NOT_FOUND = 'Пользователь с указанным идентификатором не найден';
     public static string $SPECIFY_FILE = 'Укажите файл';
     public static string $FILE_UNRESOLVED_EXTENSION_IMAGE = 'Файл имеет не допустимое расширение. Должно быть: png, jpeg или jpg';

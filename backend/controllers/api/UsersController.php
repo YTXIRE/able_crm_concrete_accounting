@@ -81,6 +81,9 @@ class UsersController extends Controller
      *                                  "email": "test@it-paradise.com",
      *                                  "created_at": 1635348594,
      *                                  "last_login_at": 1635888274,
+     *                                  "is_demo": 0,
+     *                                  "is_deleted": 0,
+     *                                  "demo_activation_date": 0
      *                              }
      *                          },
      *                          "count": 1
@@ -268,8 +271,12 @@ class UsersController extends Controller
      *                          "last_login_at": 1635970339,
      *                          "avatar": "/web/files/yW2onkqZvYqRU71mJ3EehRIOFJuZXN1bYIc1UPYQWaQYXh9llwgDcwRFuIOMmNWg.png",
      *                          "rights": {
-     *                              "is_admin": true
-     *                          }
+     *                              "is_admin": true,
+     *                              "is_report": false,
+     *                          },
+     *                          "is_demo": false,
+     *                          "is_deleted": false,
+     *                          "demo_activation_date": 0
      *                      }
      *                  }
      *              )
@@ -378,7 +385,7 @@ class UsersController extends Controller
             }
             $result = [];
             foreach (Users::getUserInfo($token) as $key => $value) {
-                if (in_array($key, ['password', 'token'])) continue;
+                if (in_array($key, ['password', 'token', 'is_deleted', 'demo_activation_date'])) continue;
                 $result[$key] = $value;
             }
             $result['timezone'] = UserTimeZone::getUserTimezone($result['id']);
@@ -428,6 +435,11 @@ class UsersController extends Controller
      *                     description="ID пользователя",
      *                     type="integer"
      *                 ),
+     *                 @OA\Property(
+     *                     property="is_demo",
+     *                     description="Демо пользователь",
+     *                     type="integer"
+     *                 ),
      *             )
      *         )
      *     ),
@@ -446,7 +458,8 @@ class UsersController extends Controller
      *                          "id": 1,
      *                          "login": "user",
      *                          "email": "test@it-paradise.com",
-     *                          "created_at": 1635348594
+     *                          "created_at": 1635348594,
+     *                          "is_demo": 0
      *                      }
      *                  }
      *              )
@@ -621,6 +634,7 @@ class UsersController extends Controller
                 'email' => array_key_exists('email', $data) ? trim($data['email']) : '',
                 'password' => array_key_exists('password', $data) ? trim($data['password']) : '',
                 'user_id' => array_key_exists('user_id', $data) ? (int)($data['user_id']) : 0,
+                'is_demo' => array_key_exists('is_demo', $data) ? (int)($data['is_demo']) : 0,
             ];
             if (!array_key_exists('login', $data) || !array_key_exists('email', $data) ||
                 !array_key_exists('password', $data) || !array_key_exists('token', $data)
@@ -659,6 +673,9 @@ class UsersController extends Controller
             }
             if (Users::checkUserData($data)) {
                 return General::generalMethod($request, 400, $data, $this, Constants::$EMAIL_ADDRESS_OR_LOGIN_ALREADY_OCCUPIED);
+            }
+            if (!is_int($data['is_demo']) || $data['is_demo'] <= 0) {
+                return General::generalMethod($request, 400, $data, $this, Constants::$DEMO_ID_MUST_BE_INTEGER);
             }
             $result = Users::createUser($data);
             if ($result['code'] == 0) {
@@ -717,6 +734,11 @@ class UsersController extends Controller
      *                 @OA\Property(
      *                     property="user_id",
      *                     description="ID пользователя",
+     *                     type="integer"
+     *                 ),
+     *                 @OA\Property(
+     *                     property="is_demo",
+     *                     description="Демо пользователь",
      *                     type="integer"
      *                 ),
      *             )
@@ -880,8 +902,8 @@ class UsersController extends Controller
                 'token' => array_key_exists('token', $data) ? trim($data['token']) : '',
                 'login' => array_key_exists('login', $data) ? trim($data['login']) : '',
                 'email' => array_key_exists('email', $data) ? trim($data['email']) : '',
-                'password' => array_key_exists('password', $data) ? trim($data['password']) : '',
                 'user_id' => array_key_exists('user_id', $data) ? (int)($data['user_id']) : 0,
+                'is_demo' => array_key_exists('is_demo', $data) ? (int)($data['is_demo']) : 0,
             ];
             if (!array_key_exists('login', $data) || !array_key_exists('email', $data)
                 || !array_key_exists('token', $data) || empty($data['login']) || empty($data['email'])
@@ -897,9 +919,6 @@ class UsersController extends Controller
             if (mb_strlen($data['email']) > 100) {
                 return General::generalMethod($request, 400, $data, $this, Constants::$MAXIMUM_LENGTH_EMAIL_100_CHARACTERS);
             }
-            if (mb_strlen($data['password']) > 100) {
-                return General::generalMethod($request, 400, $data, $this, Constants::$MAXIMUM_PASSWORD_LENGTH);
-            }
             if (!is_int($data['id']) || $data['id'] <= 0 || !is_int($data['user_id']) || $data['user_id'] <= 0) {
                 return General::generalMethod($request, 400, $data, $this, Constants::$ID_MUST_BE_INTEGER);
             }
@@ -912,17 +931,12 @@ class UsersController extends Controller
             if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
                 return General::generalMethod($request, 400, $data, $this, Constants::$INVALID_EMAIL_ADDRESS);
             }
-            if (!empty($data['password']) && mb_strlen($data['password']) < 5) {
-                return General::generalMethod($request, 400, $data, $this, Constants::$PASSWORD_MUST_CONTAIN_LEAST_5_CHARACTERS);
-            }
             if (!Users::checkUserWithTokenAndID(['id' => $data['user_id'], 'token' => $data['token']])) {
                 return General::generalMethod($request, 404, [], $this, Constants::$USER_WITH_TOKEN_AND_ID_NOT_FOUND);
             }
-            if (Users::checkUserData($data)) {
+            $user_info = Users::getUserInfoWithId($data['id']);
+            if (Users::checkUserData($data) && $user_info["login"] != $data['login'] && $user_info["email"] != $data['email']) {
                 return General::generalMethod($request, 400, $data, $this, Constants::$EMAIL_ADDRESS_OR_LOGIN_ALREADY_OCCUPIED);
-            }
-            if (!empty($data['password'])) {
-                Users::changeUserPassword($data);
             }
             $data = Users::updateUserInfo($data);
             if ($data['code'] == 0) {

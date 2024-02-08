@@ -1,6 +1,6 @@
 <template>
     <div>
-        <el-button circle type="success" @click="dialogVisible = true">
+        <el-button circle type="success" @click="dialogVisible = true" :disabled="!is_demo">
             <font-awesome-icon icon="plus" />
         </el-button>
         <el-dialog v-model="dialogVisible" title="Создание объекта">
@@ -29,6 +29,7 @@ export default {
                 name: "",
             },
             loading: false,
+            is_demo: false,
             dialogVisible: false,
             rules: {
                 name: [
@@ -66,6 +67,9 @@ export default {
             });
         },
     },
+    mounted() {
+        this.is_demo = +localStorage.getItem("is_demo") === 0;
+    }
 };
 </script>
 

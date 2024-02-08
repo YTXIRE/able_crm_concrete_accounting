@@ -1,5 +1,5 @@
 <template>
-    <el-button circle class="mr-10" plain type="primary" @click.stop.prevent="dialogVisible = true">
+    <el-button circle class="mr-10" plain type="primary" @click.stop.prevent="dialogVisible = true" :disabled="!is_demo">
         <font-awesome-icon icon="edit" />
     </el-button>
     <el-dialog v-model="dialogVisible" fullscreen title="Настройка представления">
@@ -125,6 +125,7 @@ export default {
     data() {
         return {
             dialogVisible: false,
+            is_demo: false,
             filter_name: "",
             unity: [
                 {
@@ -366,6 +367,7 @@ export default {
             ...this.filters_data,
             ...this.filters_data_edit
         };
+        this.is_demo = +localStorage.getItem("is_demo") === 0;
     },
     watch: {
         filters_block: {

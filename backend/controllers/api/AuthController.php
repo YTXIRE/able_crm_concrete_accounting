@@ -177,7 +177,7 @@ class AuthController extends Controller
             if ($result['code'] == 0) {
                 throw new Exception('Ошибка базы данных');
             }
-            return General::success(['token' => $result['token'], 'id' => $result['id']], $request, $this);
+            return General::success(['token' => $result['token'], 'id' => $result['id'], 'is_demo' => $result['is_demo']], $request, $this);
         } catch (Exception $e) {
             return General::generalMethod($request, 500, $e, $this, Constants::$INTERNAL_SERVER_ERROR);
         }

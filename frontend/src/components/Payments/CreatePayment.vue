@@ -1,6 +1,6 @@
 <template>
     <div>
-        <el-button circle type="success" @click="dialogVisible = true">
+        <el-button circle type="success" @click="dialogVisible = true" :disabled="!is_demo">
             <font-awesome-icon icon="plus" />
         </el-button>
         <el-dialog v-model="dialogVisible" title="Создание платежа">
@@ -134,6 +134,7 @@ export default {
             loading: false,
             dialogVisible: false,
             isRefund: false,
+            is_demo: false,
             rules: {
                 vendor_id: [
                     {
@@ -215,6 +216,7 @@ export default {
     },
     async mounted() {
         this.fields.legal_entity_id = this.getLegalEntityId ? this.getLegalEntityId : "";
+        this.is_demo = +localStorage.getItem("is_demo") === 0;
     },
     watch: {
         getLegalEntityId: function() {

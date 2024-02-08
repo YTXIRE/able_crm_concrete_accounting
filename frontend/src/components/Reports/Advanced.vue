@@ -4,12 +4,12 @@
             <Filters v-if="filters_data.vendor.length" :filters_data_new="filters_data" />
             <div v-if="filters.length && filters_data.vendor.length" class="generate">
                 <export-excel :data="formated_date" :fields="excel_fields" :name="get_excel_name" class="excel">
-                    <el-button :disabled="filtered_data.length === 0" type="success"> Сохранить в Excel</el-button>
+                    <el-button :disabled="filtered_data.length === 0 || !is_demo" type="success"> Сохранить в Excel</el-button>
                 </export-excel>
-                <el-button :disabled="filtered_data.length === 0" type="danger" @click="createPDF">
+                <el-button :disabled="filtered_data.length === 0 || !is_demo" type="danger" @click="createPDF">
                     Сохранить в PDF
                 </el-button>
-                <el-button v-print="printObj" :disabled="filtered_data.length === 0" type="info"> Печать</el-button>
+                <el-button v-print="printObj" :disabled="filtered_data.length === 0 || !is_demo" type="info"> Печать</el-button>
             </div>
         </div>
         <el-divider class="first_line" />
@@ -34,7 +34,7 @@
                                 @confirm="remove_filter(filter.id)"
                             >
                                 <template #reference>
-                                    <el-button circle plain type="danger">
+                                    <el-button circle plain type="danger" :disabled="!is_demo">
                                         <font-awesome-icon icon="trash" />
                                     </el-button>
                                 </template>
@@ -211,6 +211,7 @@ export default {
             filtered_data: [],
             current_filter: 0,
             loading: false,
+            is_demo: false,
             loadingFilters: false,
             printObj: {
                 id: "print_advanced_vendors",
@@ -406,6 +407,7 @@ export default {
         tmp.material_type = data.types;
         this.filters_data = tmp;
         this.loadingFilters = false;
+        this.is_demo = +localStorage.getItem("is_demo") === 0;
     },
     computed: {
         ...mapGetters(["getIsNewFilter"]),

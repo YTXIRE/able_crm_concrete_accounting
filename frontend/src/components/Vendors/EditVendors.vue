@@ -1,6 +1,6 @@
 <template>
     <div>
-        <el-button type="primary" @click="get_data">
+        <el-button type="primary" @click="get_data" :disabled="!is_demo">
             <font-awesome-icon icon="edit" />
         </el-button>
         <el-dialog v-model="dialogVisible" center title="Редактирование поставщика">
@@ -46,6 +46,7 @@ export default {
                 name: "",
             },
             loading: false,
+            is_demo: false,
             dialogVisible: false,
             rules: {
                 name: [
@@ -104,6 +105,7 @@ export default {
     async mounted() {
         this.fields.name = this.data.name;
         this.fields.icon_id = this.data.icon_id;
+        this.is_demo = +localStorage.getItem("is_demo") === 0;
     },
     watch: {
         data(e) {

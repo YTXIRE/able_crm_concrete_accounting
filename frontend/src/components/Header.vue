@@ -24,7 +24,7 @@
 </template>
 
 <script>
-import { logout } from "../api/auth";
+import { logout } from "@/api/auth";
 import { mapActions, mapGetters } from "vuex";
 import ChangeTimezone from "./Settings/ChangeTimezone";
 

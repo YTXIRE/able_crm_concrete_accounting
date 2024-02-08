@@ -5,6 +5,11 @@
             <el-table-column label="ID" prop="id" width="80" />
             <el-table-column label="Логин" prop="login" width="380" />
             <el-table-column label="Email" prop="email" />
+            <el-table-column label="Демо">
+                <template #default="scope">
+                    <span>{{ scope.row.is_demo ? "Да" : "Нет" }}</span>
+                </template>
+            </el-table-column>
             <el-table-column label="Действия" width="150">
                 <template #default="scope">
                     <EditUser :data="scope.row" />

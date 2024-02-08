@@ -1,6 +1,6 @@
 <template>
     <div>
-        <el-button type="primary" @click.prevent.stop="dialogVisible = true">
+        <el-button type="primary" @click.prevent.stop="dialogVisible = true" :disabled="!is_demo">
             <font-awesome-icon icon="edit" />
         </el-button>
         <el-dialog v-model="dialogVisible" title="Редактирование операции">
@@ -170,15 +170,6 @@
                         type="textarea"
                     ></el-input>
                 </el-form-item>
-                <el-form-item label="Документ" prop="file">
-                    <el-upload ref="upload" :auto-upload="false" action="#" class="upload">
-                        <template #trigger>
-                            <el-button size="small" type="primary">Выберите файл</el-button>
-                        </template>
-                        <span></span>
-                        <span></span>
-                    </el-upload>
-                </el-form-item>
             </el-form>
             <template v-if="active === 2" #footer>
                 <span class="dialog-footer">
@@ -247,6 +238,7 @@ export default {
             options: [],
             loading: false,
             dialogVisible: false,
+            is_demo: false,
             shortcuts: [
                 {
                     text: "Сегодня",
@@ -341,7 +333,6 @@ export default {
             this.$refs["createLegalEntities"].validate(async (valid) => {
                 if (valid) {
                     this.loading = true;
-                    const files = document.querySelector(".el-upload__input").files[0];
                     const result = await this.updateHistoryOperation({
                         token: localStorage.getItem("crm_token"),
                         id: this.data.id,
@@ -354,7 +345,6 @@ export default {
                         total: formatPrice(parseFloat(this.fields.total.replace(",", "."))),
                         comment: this.fields.comment,
                         confirmed_data: Number(this.fields.confirmed_data),
-                        file: files,
                         created_at: Math.floor(new Date(this.fields.created_at).getTime() / 1000),
                     });
                     if (result) {
@@ -412,6 +402,7 @@ export default {
         this.fields.comment = this.data.comment;
         this.fields.confirmed_data = String(this.data.confirmed_data);
         this.fields.created_at = new Date(this.data.created_at * 1000);
+        this.is_demo = +localStorage.getItem("is_demo") === 0;
     },
     watch: {
         material_type_id() {

@@ -1,6 +1,6 @@
 <template>
     <div>
-        <el-button type="primary" @click="dialogVisible = true">
+        <el-button type="primary" @click="dialogVisible = true" :disabled="!is_demo">
             <font-awesome-icon icon="edit" />
         </el-button>
         <el-dialog v-model="dialogVisible" title="Обновление типа материала">
@@ -60,6 +60,7 @@ export default {
                 units_measurement_volume_id: "",
             },
             loading: false,
+            is_demo: false,
             dialogVisible: false,
             rules: {
                 name: [
@@ -109,6 +110,7 @@ export default {
     mounted() {
         this.fields.name = this.data.name;
         this.fields.units_measurement_volume_id = this.data.units_measurement_volume.id;
+        this.is_demo = +localStorage.getItem("is_demo") === 0;
     },
     watch: {
         data(e) {

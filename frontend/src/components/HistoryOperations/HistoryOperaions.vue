@@ -136,17 +136,6 @@
                                                                 : "Данные подтверждены"
                                                         }}
                                                     </div>
-                                                    <div class="block_row_detail">
-                                                        <span>Документы</span>
-                                                        <a
-                                                            v-if="props.row.file.link"
-                                                            :href="props.row.file.link"
-                                                            target="_blank"
-                                                        >
-                                                            {{ props.row.file.name }}
-                                                        </a>
-                                                        <span v-else>Документ не загружен</span>
-                                                    </div>
                                                     <div class="block_row_detail" v-if="props.row.comment">
                                                         <span>Комментарий</span>
                                                         <span class="detail_text comment">{{ props.row.comment }}</span>
@@ -205,7 +194,7 @@
                                                     @confirm="remove(scope.row.id)"
                                                 >
                                                     <template #reference>
-                                                        <el-button class="remove" type="danger">
+                                                        <el-button class="remove" type="danger" :disabled="!is_demo">
                                                             <font-awesome-icon icon="trash" />
                                                         </el-button>
                                                     </template>
@@ -250,6 +239,7 @@ export default {
     data() {
         return {
             loading: false,
+            is_demo: false,
             activeNames: [],
             current_vendor: "",
             current_vendor_id: 1,
@@ -394,6 +384,7 @@ export default {
             limit: 0,
             archive: 0,
         });
+        this.is_demo = +localStorage.getItem("is_demo") === 0;
         this.loading = false;
         this.loadingMenu = false;
     },

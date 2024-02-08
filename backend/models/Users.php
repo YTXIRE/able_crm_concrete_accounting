@@ -19,6 +19,9 @@ use yii\db\StaleObjectException;
  * @property string|null $created_at
  * @property string|null $last_login_at
  * @property string|null $token
+ * @property int $is_demo
+ * @property int $demo_activation_date
+ * @property int $is_deleted
  */
 class Users extends ActiveRecord
 {
@@ -33,9 +36,9 @@ class Users extends ActiveRecord
     public static function getAllUsers($limit = 0, $offset = 0): array
     {
         if ($limit === 0 && $offset === 0) {
-            return self::find()->select(['id', 'login', 'email', 'created_at', 'last_login_at'])->orderBy(['id' => SORT_DESC])->all();
+            return self::find()->select(['id', 'login', 'email', 'created_at', 'last_login_at', 'is_demo', 'demo_activation_date', 'is_deleted'])->orderBy(['id' => SORT_DESC])->all();
         }
-        return self::find()->select(['id', 'login', 'email', 'created_at', 'last_login_at'])->limit($limit)->offset($offset)->orderBy(['id' => SORT_DESC])->all();
+        return self::find()->select(['id', 'login', 'email', 'created_at', 'last_login_at', 'is_demo', 'demo_activation_date', 'is_deleted'])->limit($limit)->offset($offset)->orderBy(['id' => SORT_DESC])->all();
     }
 
     public static function getAllCount()
@@ -50,6 +53,10 @@ class Users extends ActiveRecord
         }
         return false;
     }
+    public static function getUserInfoWithId($id)
+    {
+        return self::find()->where(['=', 'id', $id])->one();
+    }
 
     /**
      * @throws Exception
@@ -63,6 +70,7 @@ class Users extends ActiveRecord
         $model->email = $data['email'];
         $model->password = Yii::$app->getSecurity()->generatePasswordHash($data['password']);
         $model->created_at = $date->getTimestamp();
+        $model->is_demo = $data['is_demo'];
         $model->last_login_at = null;
         if ($model->save()) {
             return [
@@ -80,7 +88,7 @@ class Users extends ActiveRecord
 
     public static function getUserInfo($token)
     {
-        return self::find()->select(['id', 'login', 'email', 'created_at', 'last_login_at'])->where(['=', 'token', $token])->one();
+        return self::find()->select(['id', 'login', 'email', 'created_at', 'last_login_at', 'is_demo', 'demo_activation_date', 'is_deleted'])->where(['=', 'token', $token])->one();
     }
 
     /**
@@ -101,6 +109,9 @@ class Users extends ActiveRecord
         }
         if (array_key_exists('email', $data)) {
             $model->email = $data['email'];
+        }
+        if (array_key_exists('is_demo', $data)) {
+            $model->is_demo = $data['is_demo'];
         }
         if ($model->save()) {
             return [
@@ -153,6 +164,7 @@ class Users extends ActiveRecord
             return [
                 'id' => $model['id'],
                 'token' => $token,
+                'is_demo' => $model['is_demo'],
                 'code' => 1
             ];
         }
@@ -229,6 +241,9 @@ class Users extends ActiveRecord
             'created_at' => 'Created At',
             'last_login_at' => 'Last Login At',
             'token' => 'Token',
+            'is_demo' => 'Is Demo',
+            'demo_activation_date' => 'Demo Activation Date',
+            'is_deleted' => 'Is Deleted',
         ];
     }
 }

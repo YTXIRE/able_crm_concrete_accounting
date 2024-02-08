@@ -2,7 +2,6 @@
 
 namespace app\controllers\api;
 
-use app\models\Files;
 use app\models\HistoryOperation;
 use app\models\LegalEntities;
 use app\models\Materials;
@@ -12,12 +11,10 @@ use app\models\Vendors;
 use Constants;
 use DateTime;
 use general\General;
-use Yandex\Disk\DiskClient;
 use Yii;
 use yii\db\Exception;
 use yii\rest\Controller;
 use yii\web\Response;
-use yii\web\UploadedFile;
 
 class HistoryOperationController extends Controller
 {
@@ -284,19 +281,6 @@ class HistoryOperationController extends Controller
             $history = HistoryOperation::getAll($vendor_id, $material_id, $object_id, $limit, $offset);
             foreach ($history as $value) {
                 if ($value->vendor['is_archive'] === 0 && $value->object['is_archive'] === 0) {
-                    if ($value['file_id']) {
-                        $file = [
-                            'id' => $value['file_id'],
-                            'link' => $value->file['filename'],
-                            'name' => $value->file['name'],
-                        ];
-                    } else {
-                        $file = [
-                            'id' => null,
-                            'link' => null,
-                            'name' => null,
-                        ];
-                    }
                     $history_operations['operations'][] = [
                         'id' => $value['id'],
                         'vendor' => [
@@ -327,7 +311,6 @@ class HistoryOperationController extends Controller
                         'confirmed_data' => $value['confirmed_data'],
                         'price' => (float)$value['price'],
                         'total' => (float)$value['total'],
-                        'file' => $file,
                         'comment' => $value['comment']
                     ];
                     $history_operations['count'] = (int)HistoryOperation::getAllCount($vendor_id, $material_id, $object_id);
@@ -809,11 +792,6 @@ class HistoryOperationController extends Controller
      *                     description="Подтверждение данных",
      *                     type="integer"
      *                 ),
-     *                 @OA\Property(
-     *                     property="file",
-     *                     description="Документ об операци",
-     *                     type="file"
-     *                 ),
      *             )
      *         )
      *     ),
@@ -1048,7 +1026,6 @@ class HistoryOperationController extends Controller
             }
             $data = $request->bodyParams;
             $date = new DateTime();
-            $uploads = UploadedFile::getInstancesByName("file");
             $data = [
                 'token' => array_key_exists('token', $data) ? trim($data['token']) : '',
                 'user_id' => array_key_exists('user_id', $data) ? (int)($data['user_id']) : 0,
@@ -1063,7 +1040,6 @@ class HistoryOperationController extends Controller
                 'total' => array_key_exists('total', $data) ? (float)($data['total']) : 0.0,
                 'comment' => array_key_exists('comment', $data) ? trim($data['comment']) : '',
                 'created_at' => array_key_exists('created_at', $data) ? (int)($data['created_at']) : $date->getTimestamp(),
-                'file' => $uploads,
             ];
             if ($data['created_at'] === 0) {
                 $data['created_at'] = $date->getTimestamp();
@@ -1118,63 +1094,6 @@ class HistoryOperationController extends Controller
             }
             if (!Users::checkUserWithTokenAndID(['id' => $data['user_id'], 'token' => $data['token']])) {
                 return General::generalMethod($request, 404, [], $this, Constants::$USER_WITH_TOKEN_AND_ID_NOT_FOUND);
-            }
-            $data['file_id'] = null;
-            if (count($uploads)) {
-                $ext_type = $data['file'][0]->type;
-                $ext = explode('/', $data['file'][0]->type)[1];
-                $extensions = ['image/png', 'image/jpg', 'image/jpeg', 'application/vnd.oasis.opendocument.text',
-                    'application/vnd.oasis.opendocument.spreadsheet', 'application/vnd.oasis.opendocument.presentation',
-                    'application/vnd.oasis.opendocument.graphics', 'application/vnd.ms-excel',
-                    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel.sheet.macroEnabled.12',
-                    'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-                    'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-                    'application/pdf'
-                ];
-                if (!$ext || in_array("application/$ext", $extensions) || in_array("image/$ext", $extensions)) {
-                    $ext = explode('.', $data['file'][0]->name)[1];
-                }
-                if ($ext_type === '') {
-                    if (in_array($ext, ['pdf', 'doc', 'docx', 'docs', 'xls', 'xlsx', 'ppt', 'pptx'])) {
-                        $ext_type = "application/$ext";
-                    } else {
-                        $ext_type = "image/$ext";
-                    }
-                }
-                if (!in_array($ext_type, $extensions)) {
-                    return General::generalMethod($request, 400, $data, $this, Constants::$FILE_UNRESOLVED_EXTENSION);
-                }
-                $file_size = (int)filesize($data['file'][0]->tempName) / 1024;
-                if (!($file_size < 5000)) {
-                    return General::generalMethod($request, 400, $data, $this, Constants::$FILE_WEIGHT_MUST_BE_LESS_THAN_30_MB);
-                }
-                $filename = Yii::$app->security->generateRandomString(64);
-                $orig_name = null;
-                $url = null;
-                $file_path = null;
-                foreach ($uploads as $file) {
-                    $orig_name = $file->name;
-                    $path = "@app/web/files/$filename.$ext";
-                    $file->saveAs($path);
-                    $diskClient = new DiskClient('AQAAAABa2-WoAAeIyNaQO8mc5UrWrgL6qFeu3_s');
-                    $diskClient->setServiceScheme(DiskClient::HTTPS_SCHEME);
-                    $file_path = $_SERVER['DOCUMENT_ROOT'] . "/web/files/$filename.$ext";
-                    $diskClient->uploadFile(
-                        '/CRM_docs/',
-                        [
-                            'path' => $file_path,
-                            'size' => $file_path,
-                            'name' => "$filename.$ext"
-                        ]
-                    );
-                    $url = $diskClient->startPublishing("/CRM_docs/$filename.$ext");
-                }
-                $result = Files::saveFile($url, $data['user_id'], 'document', $orig_name);
-                if (!$result) {
-                    return General::generalMethod($request, 400, $data, $this, Constants::$ERROR_UPLOAD_FILE);
-                }
-                $data['file_id'] = Files::getFileWithName($url)['id'];
-                unlink($file_path);
             }
             $result = HistoryOperation::create($data);
             if ($result === false) {
@@ -1257,11 +1176,6 @@ class HistoryOperationController extends Controller
      *                     property="confirmed_data",
      *                     description="Подтверждение данных",
      *                     type="integer"
-     *                 ),
-     *                 @OA\Property(
-     *                     property="file",
-     *                     description="Документ об операци",
-     *                     type="file"
      *                 ),
      *             )
      *         )
@@ -1506,7 +1420,6 @@ class HistoryOperationController extends Controller
             }
             $data = $request->bodyParams;
             $date = new DateTime();
-            $uploads = UploadedFile::getInstancesByName("file");
             $data = [
                 'token' => array_key_exists('token', $data) ? trim($data['token']) : '',
                 'id' => array_key_exists('id', $data) ? (int)($data['id']) : 0,
@@ -1521,7 +1434,6 @@ class HistoryOperationController extends Controller
                 'total' => array_key_exists('total', $data) ? (float)($data['total']) : 0.0,
                 'comment' => array_key_exists('comment', $data) ? trim($data['comment']) : '',
                 'created_at' => array_key_exists('created_at', $data) ? (int)($data['created_at']) : $date->getTimestamp(),
-                'file' => $uploads,
             ];
             if ($data['created_at'] === 0) {
                 $data['created_at'] = $date->getTimestamp();
@@ -1575,63 +1487,6 @@ class HistoryOperationController extends Controller
             }
             if (!Users::checkUserWithTokenAndID(['id' => $data['user_id'], 'token' => $data['token']])) {
                 return General::generalMethod($request, 404, [], $this, Constants::$USER_WITH_TOKEN_AND_ID_NOT_FOUND);
-            }
-            $data['file_id'] = null;
-            if (count($uploads)) {
-                $ext_type = $data['file'][0]->type;
-                $ext = explode('/', $data['file'][0]->type)[1];
-                $extensions = ['image/png', 'image/jpg', 'image/jpeg', 'application/vnd.oasis.opendocument.text',
-                    'application/vnd.oasis.opendocument.spreadsheet', 'application/vnd.oasis.opendocument.presentation',
-                    'application/vnd.oasis.opendocument.graphics', 'application/vnd.ms-excel',
-                    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel.sheet.macroEnabled.12',
-                    'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-                    'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-                    'application/pdf'
-                ];
-                if (!$ext || in_array("application/$ext", $extensions) || in_array("image/$ext", $extensions)) {
-                    $ext = explode('.', $data['file'][0]->name)[1];
-                }
-                if ($ext_type === '') {
-                    if (in_array($ext, ['pdf', 'doc', 'docx', 'docs', 'xls', 'xlsx', 'ppt', 'pptx'])) {
-                        $ext_type = "application/$ext";
-                    } else {
-                        $ext_type = "image/$ext";
-                    }
-                }
-                if (!in_array($ext_type, $extensions)) {
-                    return General::generalMethod($request, 400, $data, $this, Constants::$FILE_UNRESOLVED_EXTENSION);
-                }
-                $file_size = (int)filesize($data['file'][0]->tempName) / 1024;
-                if (!($file_size < 5000)) {
-                    return General::generalMethod($request, 400, $data, $this, Constants::$FILE_WEIGHT_MUST_BE_LESS_THAN_30_MB);
-                }
-                $filename = Yii::$app->security->generateRandomString(64);
-                $orig_name = null;
-                $url = null;
-                $file_path = null;
-                foreach ($uploads as $file) {
-                    $orig_name = $file->name;
-                    $path = "@app/web/files/$filename.$ext";
-                    $file->saveAs($path);
-                    $diskClient = new DiskClient('AQAAAABa2-WoAAeIyNaQO8mc5UrWrgL6qFeu3_s');
-                    $diskClient->setServiceScheme(DiskClient::HTTPS_SCHEME);
-                    $file_path = $_SERVER['DOCUMENT_ROOT'] . "/web/files/$filename.$ext";
-                    $diskClient->uploadFile(
-                        '/CRM_docs/',
-                        [
-                            'path' => $file_path,
-                            'size' => $file_path,
-                            'name' => "$filename.$ext"
-                        ]
-                    );
-                    $url = $diskClient->startPublishing("/CRM_docs/$filename.$ext");
-                }
-                $result = Files::saveFile($url, $data['user_id'], 'document', $orig_name);
-                if (!$result) {
-                    return General::generalMethod($request, 400, $data, $this, Constants::$ERROR_UPLOAD_FILE);
-                }
-                $data['file_id'] = Files::getFileWithName($url)['id'];
-                unlink($file_path);
             }
             $result = HistoryOperation::updateOperation($data);
             if ($result === false) {

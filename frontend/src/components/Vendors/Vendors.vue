@@ -28,7 +28,7 @@
                                 @confirm="remove(scope.row.id)"
                             >
                                 <template #reference>
-                                    <el-button class="remove" type="danger">
+                                    <el-button class="remove" type="danger" :disabled="!is_demo">
                                         <font-awesome-icon icon="trash" />
                                     </el-button>
                                 </template>
@@ -50,7 +50,7 @@
                     @current-change="get_vendor"
                 ></el-pagination>
             </el-tab-pane>
-            <el-tab-pane :name="String(1)" label="Архивные">
+            <el-tab-pane :name="String(1)" label="Архивные" v-if="archive_vendors.vendors?.length">
                 <el-table
                     v-loading="loading"
                     :data="archive_vendors.vendors"
@@ -68,7 +68,7 @@
                     <el-table-column label="Название" prop="name" sortable />
                     <el-table-column label="Действие" width="85">
                         <template #default="scope">
-                            <el-button class="remove" plain type="info" @click="restore(scope.row.id)">
+                            <el-button class="remove" plain type="info" @click="restore(scope.row.id)" :disabled="!is_demo">
                                 <font-awesome-icon icon="trash-restore" />
                             </el-button>
                         </template>
@@ -106,6 +106,7 @@ export default {
         return {
             icons: [],
             loading: false,
+            is_demo: false,
             vendors: [],
             current_tab: 0,
             archive_vendors: [],
@@ -172,6 +173,7 @@ export default {
             token: localStorage.getItem("crm_token"),
             offset: 0,
         });
+        this.is_demo = +localStorage.getItem("is_demo") === 0;
     },
     computed: {
         ...mapGetters(["getIsNewVendor"]),

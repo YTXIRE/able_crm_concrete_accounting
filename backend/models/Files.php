@@ -60,11 +60,6 @@ class Files extends ActiveRecord
         return self::find()->where(['=', 'user_id', $user_id])->andWhere(['=', 'file_type', $file_type])->one();
     }
 
-    public static function getFileWithName($filename)
-    {
-        return self::find()->select(['id'])->where(['=', 'filename', $filename])->one();
-    }
-
     /**
      * {@inheritdoc}
      */

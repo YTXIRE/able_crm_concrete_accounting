@@ -8,6 +8,7 @@
             action="#"
             class="avatar-uploader"
             list-type="picture-card"
+            :disabled="!is_demo"
         >
             <i class="el-icon-plus"></i>
         </el-upload>
@@ -24,6 +25,7 @@ export default {
             dialogImageUrl: "",
             visibleBtn: true,
             loading: false,
+            is_demo: false,
         };
     },
     methods: {
@@ -44,6 +46,9 @@ export default {
             this.loading = false;
         },
     },
+    mounted() {
+        this.is_demo = +localStorage.getItem("is_demo") === 0;
+    }
 };
 </script>
 

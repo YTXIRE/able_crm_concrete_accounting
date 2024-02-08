@@ -72,7 +72,7 @@
                                         @confirm="remove(scope.row.id)"
                                     >
                                         <template #reference>
-                                            <el-button class="remove" type="danger">
+                                            <el-button class="remove" type="danger" :disabled="!is_demo">
                                                 <font-awesome-icon icon="trash" />
                                             </el-button>
                                         </template>
@@ -119,6 +119,7 @@ export default {
     data() {
         return {
             loading: false,
+            is_demo: false,
             loadingMenu: false,
             payments: [],
             count: [],
@@ -211,6 +212,7 @@ export default {
             token: localStorage.getItem("crm_token")
         });
         this.setLegalEntityId(0);
+        this.is_demo = +localStorage.getItem("is_demo") === 0;
     },
     computed: {
         ...mapGetters(["getIsNewPayment"])

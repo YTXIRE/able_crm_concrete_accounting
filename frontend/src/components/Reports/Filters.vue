@@ -1,5 +1,5 @@
 <template>
-    <el-button @click="dialogVisible = true">Добавить новый фильтр</el-button>
+    <el-button @click="dialogVisible = true" :disabled="!is_demo">Добавить новый фильтр</el-button>
     <el-dialog v-model="dialogVisible" fullscreen title="Настройка представления">
         <div class="main_block">
             <el-input
@@ -136,6 +136,7 @@ export default {
     data() {
         return {
             isReady: false,
+            is_demo: false,
             dialogVisible: false,
             filter_name: "",
             unity: [
@@ -366,6 +367,7 @@ export default {
             ...this.filters_data,
             ...this.filters_data_new
         };
+        this.is_demo = +localStorage.getItem("is_demo") === 0;
     },
     watch: {
         filters_block: {
