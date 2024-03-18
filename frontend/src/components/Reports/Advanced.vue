@@ -115,13 +115,6 @@
                                         }}
                                     </div>
                                     <div class="block_row_detail">
-                                        <span>Документы</span>
-                                        <a v-if="props.row.file.link" :href="props.row.file.link" target="_blank">
-                                            {{ props.row.file.name }}
-                                        </a>
-                                        <span v-else>Документ не загружен</span>
-                                    </div>
-                                    <div class="block_row_detail">
                                         <span>Комментарий</span>
                                         <span class="detail_text comment">{{ props.row.comment }}</span>
                                     </div>
@@ -318,7 +311,6 @@ export default {
                     this.format_price(item.total),
                     this.format_date(item.created_at),
                     item.confirmed_data === 0 ? "Данные не подтверждены" : "Данные подтверждены",
-                    item.file.link === null ? "Документ не загружен" : item.file.link,
                     item.comment
                 ]);
             });
@@ -449,7 +441,6 @@ export default {
                     total: this.format_price(item.total),
                     created_at: this.format_date(item.created_at),
                     confirmed_data: item.confirmed_data === 0 ? "Данные не подтверждены" : "Данные подтверждены",
-                    document: item.file.link === null ? "Документ не загружен" : item.file.link,
                     comment: item.comment
                 });
             });

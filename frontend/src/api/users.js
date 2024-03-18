@@ -1,5 +1,5 @@
 import axios from "axios";
-import { notification } from "../utils/helper";
+import { notification } from "@/utils/helper";
 import FormData from "form-data";
 
 export const get_info = async (token) => {
@@ -17,6 +17,13 @@ export const get_info = async (token) => {
             return false;
         })
         .catch((e) => {
+            if ([404, 400].includes(e.response.data.code)) {
+                notification("Отсутствует авторизация", e.response.data.message, "error");
+                localStorage.removeItem("crm_token");
+                setTimeout(() => {
+                    location.reload();
+                }, 3000)
+            }
             notification("Функционал пользователя", e.response.data?.message, "error");
             console.error(e);
             return false;
@@ -116,6 +123,13 @@ export const get_all = async (data) => {
             return d?.data?.data;
         })
         .catch((e) => {
+            if ([404, 400].includes(e.response.data.code)) {
+                notification("Отсутствует авторизация", e.response.data.message, "error");
+                localStorage.removeItem("crm_token");
+                setTimeout(() => {
+                    location.reload();
+                }, 3000)
+            }
             notification("Функционал пользователя", e.response.data?.message, "error");
             console.error(e);
             return false;

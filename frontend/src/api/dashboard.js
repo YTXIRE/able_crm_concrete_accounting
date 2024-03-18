@@ -1,4 +1,5 @@
 import axios from "axios";
+import { notification } from "@/utils/helper";
 
 export const get_data = async (data) => {
     return await axios
@@ -11,7 +12,14 @@ export const get_data = async (data) => {
             return d?.data?.data;
         })
         .catch((e) => {
-            console.error(e);
+            if ([404, 400].includes(e.response.data.code)) {
+                notification("Отсутствует авторизация", e.response.data.message, "error");
+                localStorage.removeItem("crm_token");
+                setTimeout(() => {
+                    location.reload();
+                }, 3000)
+            }
+            console.log(e);
             return false;
         })
         .finally(() => {

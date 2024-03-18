@@ -598,10 +598,10 @@ class ReportController extends Controller
             foreach ($history as $value) {
                 if ($value->vendor['is_archive'] === 0 && $value->object['is_archive'] === 0) {
                     if (count($legal_entity_filters) && $legal_entity_filters['value'] === $value->legalEntity['id']) {
-                        $history_operations = $this->getOperations($value, $file, $history_operations);
+                        $history_operations = $this->getOperations($value, $history_operations);
                     }
                     if (!count($legal_entity_filters)) {
-                        $history_operations = $this->getOperations($value, $file, $history_operations);
+                        $history_operations = $this->getOperations($value, $history_operations);
                     }
                 }
             }
@@ -1461,11 +1461,10 @@ class ReportController extends Controller
 
     /**
      * @param $value
-     * @param array $file
      * @param array $history_operations
      * @return array
      */
-    public function getOperations($value, array $file, array $history_operations): array
+    public function getOperations($value, array $history_operations): array
     {
         $history_operations[] = [
             'id' => $value['id'],
@@ -1491,7 +1490,6 @@ class ReportController extends Controller
             'confirmed_data' => $value['confirmed_data'],
             'price' => (float)$value['price'],
             'total' => (float)$value['total'],
-            'file' => $file,
             'comment' => $value['comment'],
             'legal_entity' => [
                 "id" => $value->legalEntity['id'],

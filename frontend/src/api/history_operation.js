@@ -15,6 +15,13 @@ export const get_all_operations_by_material = async (data) => {
             return d?.data?.data;
         })
         .catch((e) => {
+            if ([404, 400].includes(e.response.data.code)) {
+                notification("Отсутствует авторизация", e.response.data.message, "error");
+                localStorage.removeItem("crm_token");
+                setTimeout(() => {
+                    location.reload();
+                }, 3000)
+            }
             console.error(e);
             return false;
         })
@@ -34,6 +41,13 @@ export const get_objects_by_vendor = async (data) => {
             return d?.data?.data;
         })
         .catch((e) => {
+            if ([404, 400].includes(e.response.data.code)) {
+                notification("Отсутствует авторизация", e.response.data.message, "error");
+                localStorage.removeItem("crm_token");
+                setTimeout(() => {
+                    location.reload();
+                }, 3000)
+            }
             console.error(e);
             return false;
         })
@@ -53,6 +67,13 @@ export const get_material_by_object = async (data) => {
             return d?.data?.data;
         })
         .catch((e) => {
+            if ([404, 400].includes(e.response.data.code)) {
+                notification("Отсутствует авторизация", e.response.data.message, "error");
+                localStorage.removeItem("crm_token");
+                setTimeout(() => {
+                    location.reload();
+                }, 3000)
+            }
             console.error(e);
             return false;
         })
