@@ -12,7 +12,11 @@ export const login = async (data) => {
             if (d?.data?.data?.token) {
                 localStorage.setItem("crm_token", d?.data?.data?.token);
                 localStorage.setItem("user_id", d?.data?.data?.id);
-                localStorage.setItem("is_demo", d?.data?.data?.is_demo);
+                if (d?.data?.data?.is_demo === undefined) {
+                    localStorage.setItem("is_demo", "1");
+                } else {
+                    localStorage.setItem("is_demo", d?.data?.data?.is_demo);
+                }
                 return true;
             }
             return false;
