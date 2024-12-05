@@ -204,7 +204,7 @@ class Users extends ActiveRecord
 
     public static function checkTokenUserWithLogin($login)
     {
-        return self::find()->select(['id', 'token'])->where(['=', 'login', $login])->one();
+        return self::find()->select(['id', 'token', 'is_demo'])->where(['=', 'login', $login])->one();
     }
 
     public static function checkUserWithTokenAndID($data): bool

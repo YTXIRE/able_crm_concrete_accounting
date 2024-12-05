@@ -171,7 +171,7 @@ class AuthController extends Controller
             }
             $token = Users::checkTokenUserWithLogin($data['login']);
             if ($token['token']) {
-                return General::success(['token' => $token['token'], 'id' => $token['id']], $request, $this);
+                return General::success(['token' => $token['token'], 'id' => $token['id'], 'is_demo' => $token['is_demo']], $request, $this);
             }
             $result = Users::generateToken($data);
             if ($result['code'] == 0) {
