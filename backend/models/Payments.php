@@ -47,7 +47,18 @@ class Payments extends ActiveRecord
         if ($limit === 0 && $offset === 0 && $legal_entity_id === 0) {
             return self::find()->orderBy(['id' => SORT_DESC])->all();
         }
+        if ($limit === 0 && $offset === 0) {
+            return self::find()->orderBy(['id' => SORT_DESC])->all();
+        }
         return self::find()->where(['=', 'legal_entity_id', $legal_entity_id])->limit($limit)->offset($offset)->orderBy(['id' => SORT_DESC])->all();
+    }
+
+    public static function getAllPaymentsByVendors($limit = 0, $offset = 0, $vendor_id = 0): array
+    {
+        if ($limit === 0 && $offset === 0) {
+            return self::find()->where(['=', 'vendor_id', $vendor_id])->orderBy(['id' => SORT_DESC])->all();
+        }
+        return self::find()->where(['=', 'vendor_id', $vendor_id])->limit($limit)->offset($offset)->orderBy(['id' => SORT_DESC])->all();
     }
 
     public static function getAllCount($legal_entity_id)

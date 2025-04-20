@@ -8,9 +8,10 @@ export const get_all = async (data) => {
     for (let item in data.offset) {
         offset[item] = data.offset[item];
     }
+    console.log(data);
     return await axios
         .get(
-            `${process.env.VUE_APP_API_URL}/api/payments/get-all?token=${data.token}&limit=10&offset=${JSON.stringify(
+            `${process.env.VUE_APP_API_URL}/api/payments/get-all?token=${data.token}&limit=${data.limit ?? 0}&offset=${JSON.stringify(
                 offset
             )}&user_id=${localStorage.getItem("user_id")}`
         )
@@ -23,7 +24,32 @@ export const get_all = async (data) => {
                 localStorage.removeItem("crm_token");
                 setTimeout(() => {
                     location.reload();
-                }, 3000)
+                }, 3000);
+            }
+            console.error(e);
+            return false;
+        })
+        .finally(() => {
+            return false;
+        });
+};
+
+export const get_all_payments_by_vendor = async (data) => {
+    return await axios
+        .get(
+            `${process.env.VUE_APP_API_URL}/api/payments/get-all-payments-by-vendor?token=${data.token}
+            &vendor_id=${data.vendor_id}&user_id=${localStorage.getItem("user_id")}`
+        )
+        .then((d) => {
+            return d?.data?.data;
+        })
+        .catch((e) => {
+            if ([400].includes(e.response.data.code)) {
+                notification("Отсутствует авторизация", e.response.data.message, "error");
+                localStorage.removeItem("crm_token");
+                setTimeout(() => {
+                    location.reload();
+                }, 3000);
             }
             console.error(e);
             return false;
@@ -73,7 +99,7 @@ export const update = async (data) => {
             amount: data.amount,
             operation_type: data.operation_type,
             created_at: data.created_at,
-            user_id: localStorage.getItem("user_id"),
+            user_id: localStorage.getItem("user_id")
         })
         .then((d) => {
             if (d?.data?.data) {
@@ -98,8 +124,8 @@ export const delete_payment = async (data) => {
             data: {
                 token: data.token,
                 id: data.id,
-                user_id: localStorage.getItem("user_id"),
-            },
+                user_id: localStorage.getItem("user_id")
+            }
         })
         .then((d) => {
             if (d?.data?.message) {

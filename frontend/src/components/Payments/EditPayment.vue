@@ -30,6 +30,7 @@
                         no-data-text="Юридических лиц не найдено. Добавьте новое или восстановите старое"
                         placeholder="Выберите юридическое лицо"
                     >
+
                         <el-option
                             v-for="item in legal_entities"
                             :key="item.id"

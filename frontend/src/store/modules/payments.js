@@ -1,9 +1,15 @@
-import { delete_payment, get_all, save, update } from "@/api/payments.js";
+import {
+    delete_payment,
+    get_all,
+    get_all_payments_by_vendor,
+    save,
+    update
+} from "@/api/payments.js";
 
 export default {
     state: {
         isNewPayments: 0,
-        legalEntityId: "",
+        legalEntityId: ""
     },
     mutations: {
         setIsNewPayment(state, payload) {
@@ -11,7 +17,7 @@ export default {
         },
         setLegalEntityId(state, payload) {
             state.legalEntityId = payload;
-        },
+        }
     },
     actions: {
         setIsNewPayment({ commit }, payload) {
@@ -23,6 +29,10 @@ export default {
         // eslint-disable-next-line no-empty-pattern
         async getAllPayments({}, payload) {
             return await get_all(payload);
+        },
+        // eslint-disable-next-line no-empty-pattern
+        async getAllPaymentsByVendor({}, payload) {
+            return await get_all_payments_by_vendor(payload);
         },
         async savePayment({ dispatch }, payload) {
             const result = await save(payload);
@@ -43,14 +53,14 @@ export default {
         async deletePayment({ dispatch }, payload) {
             const result = await delete_payment({
                 token: payload.token,
-                id: payload.id,
+                id: payload.id
             });
             if (result) {
                 dispatch("setIsNewPayment", Math.random());
                 return true;
             }
             return false;
-        },
+        }
     },
     getters: {
         getIsNewPayment(state) {
@@ -58,6 +68,6 @@ export default {
         },
         getLegalEntityId(state) {
             return state.legalEntityId;
-        },
-    },
+        }
+    }
 };

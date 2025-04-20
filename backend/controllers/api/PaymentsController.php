@@ -283,6 +283,238 @@ class PaymentsController extends Controller
     }
 
     /**
+     * @OA\Get(
+     *     path="/api/payments/get-all-payments-by-vendor",
+     *     summary="Получение списка оплаты",
+     *     operationId="get-all",
+     *     tags={"payments"},
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         description="Токен пользователя",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="user_id",
+     *         in="query",
+     *         description="ID пользователя",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="vendor_id",
+     *         in="query",
+     *         description="ID поставщика",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer"
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="OK",
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Examples(
+     *                 example="OK",
+     *                 summary="",
+     *                 value={
+     *                     "code": 200,
+     *                     "status": "OK",
+     *                     "data": {
+     *                          "payments": {
+     *                              "Организация 1": {
+     *                                  "id": 1,
+     *                                  "amount": 123444,
+     *                                  "created_at": 1635843654,
+     *                                  "icon": "algolia",
+     *                                  "legal_entities_type_id": 1,
+     *                                  "legal_entity": "Организация 1",
+     *                                  "legal_entity_id": 1,
+     *                                  "legal_entity_type": "ОАО",
+     *                                  "prefix": "fab",
+     *                                  "vendor": "Поставщик 1",
+     *                                  "vendor_id": 1,
+     *                                  "material_type": "Тип материала 1",
+     *                                  "material_type_id": 1,
+     *                                  "units_measurement_volume_id": 1,
+     *                              }
+     *                          },
+     *                          "legal_entity_ids": {
+     *                              "Организация 1": 1
+     *                          },
+     *                          "count": {
+     *                              "Организация 1": 1
+     *                          }
+     *                      }
+     *                  }
+     *              )
+     *          )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Неверные данные",
+     *         @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Examples(
+     *                 example="Пожалуйста, укажите токен пользователя",
+     *                 summary="",
+     *                 value={
+     *                     "code": 400,
+     *                     "status": "Bad Request",
+     *                     "message": "Пожалуйста, укажите токен пользователя"
+     *                  }
+     *              ),
+     *              @OA\Examples(
+     *                 example="Максимальная длина токена может быть 100 символов",
+     *                 summary="",
+     *                 value={
+     *                     "code": 400,
+     *                     "status": "Bad Request",
+     *                     "message": "Максимальная длина токена может быть 100 символов"
+     *                  }
+     *              ),
+     *              @OA\Examples(
+     *                 example="Идентификатор должен быть целым числом и должен быть больше нуля",
+     *                 summary="",
+     *                 value={
+     *                     "code": 400,
+     *                     "status": "Bad Request",
+     *                     "message": "Идентификатор должен быть целым числом и должен быть больше нуля"
+     *                  }
+     *              ),
+     *              @OA\Examples(
+     *                 example="Лимит должен быть больше нуля",
+     *                 summary="",
+     *                 value={
+     *                     "code": 400,
+     *                     "status": "Bad Request",
+     *                     "message": "Лимит должен быть больше нуля"
+     *                  }
+     *              ),
+     *              @OA\Examples(
+     *                 example="Смещение должно быть больше нуля",
+     *                 summary="",
+     *                 value={
+     *                     "code": 400,
+     *                     "status": "Bad Request",
+     *                     "message": "Смещение должно быть больше нуля"
+     *                  }
+     *              )
+     *          )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Данные не найдены",
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Examples(
+     *                 example="Пользователь с указанным токеном не найден",
+     *                 summary="",
+     *                 value={
+     *                     "code": 404,
+     *                     "status": "Not Found",
+     *                     "message": "Пользователь с указанным токеном не найден"
+     *                  }
+     *              ),
+     *              @OA\Examples(
+     *                 example="Пользователь с указанным токеном и идентификатором не найден",
+     *                 summary="",
+     *                 value={
+     *                     "code": 404,
+     *                     "status": "Not Found",
+     *                     "message": "Пользователь с указанным токеном и идентификатором не найден"
+     *                  }
+     *              )
+     *          )
+     *     ),
+     *     @OA\Response(
+     *         response=405,
+     *         description="Метод не разрешен",
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Examples(
+     *                 example="Пожалуйста, используйте метод GET для этого запроса",
+     *                 summary="",
+     *                 value={
+     *                     "code": 405,
+     *                     "status": "Method Not Allowed",
+     *                     "message": "Пожалуйста, используйте метод GET для этого запроса"
+     *                  }
+     *              )
+     *          )
+     *     )
+     *     )
+     * )
+     */
+    function actionGetAllPaymentsByVendor($token = '', $user_id = 0, $vendor_id = 0): Response
+    {
+        try {
+            $request = Yii::$app->request;
+            if (!$request->isGet) {
+                return General::generalMethod($request, 405, [], $this, Constants::$GET_METHOD_NOT_ALLOWED);
+            }
+            $token = trim($token);
+            $user_id = (int)$user_id;
+            $vendor_id = (int)$vendor_id;
+            if (empty($token)) {
+                return General::generalMethod($request, 400, [$token], $this, Constants::$PLEASE_SPECIFY_USER_TOKEN);
+            }
+            if (mb_strlen($token) > 100) {
+                return General::generalMethod($request, 400, [$token], $this, Constants::$MAXIMUM_TOKEN_LENGTH);
+            }
+            if (!is_int($user_id) || $user_id <= 0) {
+                return General::generalMethod($request, 400, [$user_id], $this, Constants::$ID_MUST_BE_INTEGER);
+            }
+            if (!is_int($vendor_id) || $vendor_id < 0) {
+                return General::generalMethod($request, 400, [$vendor_id], $this, Constants::$VENDOR_ID_DOES_NOT_EXIST);
+            }
+            if (!Users::checkExistUserWithToken($token)) {
+                return General::generalMethod($request, 404, [], $this, Constants::$USER_WITH_TOKEN_NOT_FOUND);
+            }
+            if (!Users::checkUserWithTokenAndID(['id' => $user_id, 'token' => $token])) {
+                return General::generalMethod($request, 404, [], $this, Constants::$USER_WITH_TOKEN_AND_ID_NOT_FOUND);
+            }
+            if (!Vendors::checkIsNotExitsId($vendor_id)) {
+                return General::generalMethod($request, 404, [], $this, Constants::$VENDOR_ID_DOES_NOT_EXIST);
+            }
+
+            $payments = [];
+            $payments_tmp = Payments::getAllPaymentsByVendors(0, 0, $vendor_id);
+
+            foreach ($payments_tmp as $payment) {
+                if ($payment->vendor['is_archive'] === 0) {
+                    $payments[] = [
+                        'id' => $payment['id'],
+                        'vendor_id' => $payment['vendor_id'],
+                        'vendor' => $payment->vendor['name'],
+                        'icon' => $payment->vendor->icon['name'],
+                        'prefix' => $payment->vendor->icon['prefix'],
+                        'amount' => $payment['amount'],
+                        'created_at' => $payment['created_at'],
+                        'legal_entity_id' => $payment['legal_entity_id'],
+                        'operation_type' => $payment['operation_type'],
+                        'legal_entity' => $payment->legalEntity['name'],
+                        'legal_entity_type' => $payment->legalEntity->type['name'],
+                        'legal_entities_type_id' => $payment->legalEntity['id'],
+                        'material_type' => $payment->materialType['name'],
+                        'material_type_id' => $payment->materialType['id'],
+                        'units_measurement_volume_id' => $payment->materialType['units_measurement_volume_id'],
+                    ];
+                }
+            }
+            return General::success(['payments' => $payments ?: []], $request, $this);
+        } catch (Exception $e) {
+            return General::generalMethod($request, 500, $e, $this, Constants::$INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
      * @OA\Post(
      *     path="/api/payments/create",
      *     summary="Создание нового платежа",

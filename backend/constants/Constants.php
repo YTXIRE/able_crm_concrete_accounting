@@ -91,6 +91,7 @@ class Constants
     public static string $OBJECT_SUCCESSFULLY_RESTORED = 'Объект успешно восстановлен';
     public static string $OBJECT_ARCHIVE_OR_ACTIVE = 'Объекты могут быть либо активные - 0, либо архивные 1';
     public static string $VENDOR_SUCCESSFULLY_REMOVED = 'Поставщик успешно удален';
+    public static string $VENDOR_ID_DOES_NOT_EXIST = 'Поставщик не найден';
     public static string $FILTER_SUCCESSFULLY_REMOVED = 'Фильтр успешно удален';
     public static string $FILTER_SUCCESSFULLY_UPDATED = 'Фильтр успешно обновлен';
     public static string $VENDOR_SUCCESSFULLY_RESTORED = 'Поставщик успешно восстановлен';
