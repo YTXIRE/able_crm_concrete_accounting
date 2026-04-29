@@ -1,40 +1,56 @@
 FROM php:7.4-apache
 
-RUN apt-get update
+# Системные зависимости
+RUN apt-get update && apt-get install -y \
+    git \
+    unzip \
+    libzip-dev \
+    libpng-dev \
+    libonig-dev \
+    libxml2-dev \
+    libicu-dev \
+    curl \
+    && docker-php-ext-install \
+        pdo \
+        pdo_mysql \
+        zip \
+        intl \
+        opcache \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-RUN apt-get install -fyqq \
-    bash curl wget rsync ca-certificates openssl ssh git tzdata openntpd \
-    libxrender1 fontconfig libc6 \
-    mariadb-client gnupg binutils-gold autoconf \
-    g++ gcc gnupg libgcc1 make python
+# Включаем mod_rewrite (нужно для Yii2)
+RUN a2enmod rewrite
 
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer \
- && chmod 755 /usr/bin/composer
+# Разрешаем .htaccess
+RUN sed -i 's/AllowOverride None/AllowOverride All/g' /etc/apache2/apache2.conf
 
-RUN docker-php-ext-install bcmath pdo_mysql
+# Composer
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-RUN apt-get install -fyqq libfreetype6 libfreetype6-dev libpng16-16 libpng-dev libjpeg62-turbo libjpeg62-turbo-dev \
- && docker-php-ext-install gd \
- && apt-get remove -fyqq libfreetype6-dev libpng-dev libjpeg62-turbo-dev
-
-RUN apt-get install -fyqq zip libzip-dev \
- && docker-php-ext-install zip \
- && apt-get remove -fyqq libzip-dev
-
-COPY .htaccess /var/www/html
-COPY ./. /var/www/html
-
+# Рабочая директория
 WORKDIR /var/www/html
 
-RUN chmod 777 /var/www/html
+# Копируем проект
+COPY . .
 
-RUN chown www-data:www-data /var/www/html/web
-# RUN chown www-data:www-data /var/www/html/web/files
-RUN chown www-data:www-data /tmp
+# Скрипт запуска приложения
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
-RUN a2enmod rewrite
-RUN a2enmod headers
+# Установка зависимостей
+RUN composer install --no-dev --optimize-autoloader
 
-RUN rm -rf ./config/db.php
+# Права для Yii2
+RUN mkdir -p runtime web/assets \
+    && chown -R www-data:www-data /var/www/html \
+    && chmod -R 775 runtime web/assets
 
-ADD ./config/example_db.php ./config/db.php
+# DocumentRoot → web (Yii2)
+RUN sed -i 's|DocumentRoot /var/www/html|DocumentRoot /var/www/html/web|g' /etc/apache2/sites-available/000-default.conf
+
+# Порт
+EXPOSE 80
+
+# Запуск Apache после миграций
+ENTRYPOINT ["docker-entrypoint.sh"]
+CMD ["apache2-foreground"]

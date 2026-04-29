@@ -1,42 +1,62 @@
-version: "3.8"
-
 services:
-    mariadb:
+
+    db:
         image: mariadb:10.5
-        container_name: database_crm_app
-        ports:
-            - "3306:3306"
+        container_name: crm_db
+        restart: always
         environment:
             MYSQL_ROOT_PASSWORD: root
             MYSQL_DATABASE: crm
             MYSQL_USER: crm
             MYSQL_PASSWORD: crm
-        command: --init-file /var/lib/mysql/init.sql
+        ports:
+            - "3306:3306"
         volumes:
-            - ./backend/init.sql:/var/lib/mysql/init.sql
-            - /tmp/db:/var/lib/mysql
+            - db_data:/var/lib/mysql
+            - ./backend/init.sql:/docker-entrypoint-initdb.d/init.sql
         networks:
             - crm
+        healthcheck:
+            test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -p\"$${MYSQL_ROOT_PASSWORD}\" || exit 1"]
+            interval: 10s
+            retries: 5
+            timeout: 5s
+
     backend:
         build:
-            context: backend
-        container_name: backend_crm_app
+            context: ./backend
+        container_name: crm_backend
+        restart: always
+        depends_on:
+            db:
+                condition: service_healthy
         ports:
             - "8020:80"
-        volumes:
-            - ./backend:/var/www/html
+        environment:
+            DB_HOST: db
+            DB_NAME: crm
+            DB_USER: crm
+            DB_PASSWORD: crm
+            YII_ENV: prod
+            YII_DEBUG: "false"
         networks:
             - crm
-        links:
-            - "mariadb:db"
+
     frontend:
         build:
-            context: frontend
-        container_name: frontend_crm_app
+            context: ./frontend
+        container_name: crm_frontend
+        restart: always
         ports:
             - "8050:80"
+        depends_on:
+            - backend
         networks:
             - crm
+
+volumes:
+    db_data:
+
 networks:
     crm:
         driver: bridge

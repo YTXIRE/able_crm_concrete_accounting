@@ -20,19 +20,19 @@
                         </el-menu-item>
                     </el-menu>
                 </el-card>
-                <br>
-                <el-card v-loading="loadingMenu" shadow="never">
-                    <el-menu>
-                        <el-menu-item
-                            v-for="key in Object.keys(vendors)"
-                            :key="vendors[key]"
-                            :index="`${vendors[key].value}_!-#$te__${vendors[key].name}`"
-                            @click="set_vendor"
-                        >
-                            <span class="text">{{ vendors[key].name }}</span>
-                        </el-menu-item>
-                    </el-menu>
-                </el-card>
+<!--                <br>-->
+<!--                <el-card v-loading="loadingMenu" shadow="never">-->
+<!--                    <el-menu>-->
+<!--                        <el-menu-item-->
+<!--                            v-for="key in Object.keys(vendors)"-->
+<!--                            :key="vendors[key]"-->
+<!--                            :index="`${vendors[key].value}_!-#$te__${vendors[key].name}`"-->
+<!--                            @click="set_vendor"-->
+<!--                        >-->
+<!--                            <span class="text">{{ vendors[key].name }}</span>-->
+<!--                        </el-menu-item>-->
+<!--                    </el-menu>-->
+<!--                </el-card>-->
             </el-col>
             <el-col :span="19">
                 <el-card shadow="never" v-if="!is_all_payments_by_vendor">
@@ -51,12 +51,11 @@
                                                        class="icon size_icon" />
                                 </template>
                             </el-table-column>
-                            <el-table-column
-                                label="Поставщик"
-                                prop="vendor"
-                                sortable
-                                width="180"
-                            />
+                            <el-table-column label="Юридическое лицо" sortable width="220">
+                                <template #default="scope" class="wrapper_vendor">
+                                    {{ `${scope.row.legal_entity_type} ${scope.row.legal_entity}` }}
+                                </template>
+                            </el-table-column>
                             <el-table-column label="Тип операции" sortable width="140">
                                 <template #default="scope" class="color">
                                     {{ scope.row.operation_type === "buy" ? "Оплата" : "Возврат" }}
@@ -134,12 +133,11 @@
                                                        class="icon size_icon" />
                                 </template>
                             </el-table-column>
-                            <el-table-column
-                                label="Поставщик"
-                                prop="vendor"
-                                sortable
-                                width="180"
-                            />
+                            <el-table-column label="Юридическое лицо" sortable width="220">
+                                <template #default="scope" class="wrapper_vendor">
+                                    {{ `${scope.row.legal_entity_type} ${scope.row.legal_entity}` }}
+                                </template>
+                            </el-table-column>
                             <el-table-column label="Тип операции" sortable width="140">
                                 <template #default="scope" class="color">
                                     {{ scope.row.operation_type === "buy" ? "Оплата" : "Возврат" }}
@@ -218,6 +216,7 @@ export default {
             current_tab: 1,
             offsets: [],
             current_vendor: "",
+            current_vendor_id: 0,
             current_legal_entity: "",
             pagination: {},
             vendors: [],
@@ -268,6 +267,7 @@ export default {
             this.current_tab = index[1];
             this.current_legal_entity = index[0];
             this.current_vendor = "";
+            this.current_vendor_id = 0;
             this.setLegalEntityId(Number(index[1]));
             this.is_all_payments_by_vendor = false;
             this.legal_entity_index = e.index;
@@ -275,12 +275,13 @@ export default {
         set_vendor: async function(e) {
             this.loading = true;
             const index = e.index.split("_!-#$te__");
+            this.current_vendor_id = Number(index[0]);
             this.current_vendor = index[1];
             this.setLegalEntityId(1);
             this.current_legal_entity = "";
             this.all_payments_by_vendor = await this.getAllPaymentsByVendor({
                 token: localStorage.getItem("crm_token"),
-                vendor_id: index[0],
+                vendor_id: this.current_vendor_id,
             });
             this.vendor_index = e.index;
             this.is_all_payments_by_vendor = true;
@@ -337,6 +338,15 @@ export default {
     },
     watch: {
         getIsNewPayment: async function() {
+            if (this.is_all_payments_by_vendor && this.current_vendor_id) {
+                this.loading = true;
+                this.all_payments_by_vendor = await this.getAllPaymentsByVendor({
+                    token: localStorage.getItem("crm_token"),
+                    vendor_id: this.current_vendor_id,
+                });
+                this.loading = false;
+                return;
+            }
             await this.get_data(0, this.current_tab, true);
         }
     }

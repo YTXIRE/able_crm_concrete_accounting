@@ -194,7 +194,7 @@ import EditFilters from "@/components/Reports/EditFilters.vue";
 import pdfMake from "pdfmake/build/pdfmake";
 import pdfFonts from "pdfmake/build/vfs_fonts";
 
-pdfMake.vfs = pdfFonts.pdfMake.vfs;
+pdfMake.vfs = pdfFonts.pdfMake?.vfs || pdfFonts.vfs || pdfFonts;
 
 export default {
     components: { EditFilters, Filters },
