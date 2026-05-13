@@ -21,7 +21,7 @@
                         @confirm="remove_user(scope.row.id)"
                     >
                         <template #reference>
-                            <el-button type="danger">
+                            <el-button type="danger" :disabled="!is_demo">
                                 <font-awesome-icon icon="trash" />
                             </el-button>
                         </template>
@@ -59,6 +59,7 @@ export default {
             loading: false,
             users: [],
             offset: 0,
+            is_demo: +localStorage.getItem("is_demo") === 0,
         };
     },
     methods: {

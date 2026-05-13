@@ -1,6 +1,7 @@
 <template>
     <el-select
         v-model="value"
+        :disabled="!is_demo"
         :loading="loading"
         filterable
         no-data-text="Часовых поясов не найдено"
@@ -31,6 +32,7 @@ export default {
             timezones: null,
             value: JSON.parse(localStorage.getItem("user_data"))?.timezone,
             loading: false,
+            is_demo: false,
         };
     },
     methods: {
@@ -47,6 +49,7 @@ export default {
     },
     async mounted() {
         this.loading = true;
+        this.is_demo = +localStorage.getItem("is_demo") === 0;
         this.timezones = await this.getTimezones(localStorage.getItem("crm_token"));
         this.timezones.forEach((timezone) => {
             let date = new Date();

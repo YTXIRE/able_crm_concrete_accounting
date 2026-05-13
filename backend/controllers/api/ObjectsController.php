@@ -1207,7 +1207,7 @@ class ObjectsController extends Controller
                 'count' => [],
             ];
             foreach ($objects_tmp as $object) {
-                if (str_contains(mb_strtolower($object['name']), mb_strtolower($query))) {
+                if (mb_stripos((string)$object['name'], $query) !== false) {
                     $objects['objects'][] = [
                         'id' => $object['id'],
                         'name' => $object['name'],

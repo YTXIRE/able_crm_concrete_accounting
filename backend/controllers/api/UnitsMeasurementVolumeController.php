@@ -164,7 +164,11 @@ class UnitsMeasurementVolumeController extends Controller
             if (!Users::checkUserWithTokenAndID(['id' => $user_id, 'token' => $token])) {
                 return General::generalMethod($request, 404, [], $this, Constants::$USER_WITH_TOKEN_AND_ID_NOT_FOUND);
             }
-            return General::success(UnitsMeasurementVolume::getAll() ?: [], $request, $this);
+            $units = [];
+            foreach (UnitsMeasurementVolume::getAll() as $item) {
+                $units[] = $item->asApiArray();
+            }
+            return General::success($units, $request, $this);
         } catch (Exception $e) {
             return General::generalMethod($request, 500, $e, $this, Constants::$INTERNAL_SERVER_ERROR);
         }

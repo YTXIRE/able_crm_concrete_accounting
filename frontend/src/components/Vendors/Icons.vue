@@ -13,14 +13,13 @@
                 </el-col>
             </el-row>
             <el-pagination
+                v-model:current-page="current_page"
                 :current-page="current_page"
                 :page-size="48"
                 :total="Number(options.count)"
                 background
                 class="pagination"
                 layout="prev, pager, next"
-                @next-click="pagination"
-                @prev-click="pagination"
                 @current-change="pagination"
             ></el-pagination>
             <template #footer>

@@ -112,7 +112,7 @@
                                                     <div class="block_row_detail">
                                                         <span>
                                                             Цена за
-                                                            {{ word_decimal(props.row.material.units.toLowerCase()) }}
+                                                            {{ word_decimal(props.row.material.units.full_name.toLowerCase()) }}
                                                         </span>
                                                         {{ format_price(props.row.price) }}
                                                     </div>

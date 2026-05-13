@@ -35,9 +35,8 @@ export default {
             this.visibleBtn = false;
             this.loading = true;
             const user_data = JSON.parse(localStorage.getItem("user_data"));
-            const files = document.querySelector(".el-upload__input").files[0];
             await this.upload_avatar({
-                avatar: files,
+                avatar: file.raw,
                 id: user_data.id,
                 token: localStorage.getItem("crm_token"),
             });

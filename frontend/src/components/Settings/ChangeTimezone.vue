@@ -8,7 +8,7 @@
         @confirm="confirmEvent"
     >
         <template #reference>
-            <el-button :disabled="this.currentTimezone === this.systemTimezone" type="text">
+            <el-button :disabled="!is_demo || this.currentTimezone === this.systemTimezone" type="text">
                 {{ time }}
             </el-button>
         </template>
@@ -29,6 +29,7 @@ export default {
         return {
             currentTimezone: null,
             systemTimezone: null,
+            is_demo: false,
         };
     },
     methods: {
@@ -50,9 +51,10 @@ export default {
     mounted() {
         this.currentTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
         this.systemTimezone = JSON.parse(localStorage.getItem("user_data"))?.timezone;
+        this.is_demo = +localStorage.getItem("is_demo") === 0;
 
         setTimeout(() => {
-            if (this.currentTimezone !== this.systemTimezone) {
+            if (this.is_demo && this.currentTimezone !== this.systemTimezone) {
                 document.querySelector(".el-button ").click();
             }
         }, 3000);

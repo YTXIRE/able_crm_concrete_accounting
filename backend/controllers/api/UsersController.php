@@ -269,7 +269,7 @@ class UsersController extends Controller
      *                          "email": "test@it-paradise.ru",
      *                          "created_at": 1635348594,
      *                          "last_login_at": 1635970339,
-     *                          "avatar": "/web/files/yW2onkqZvYqRU71mJ3EehRIOFJuZXN1bYIc1UPYQWaQYXh9llwgDcwRFuIOMmNWg.png",
+      *                          "avatar": "/files/yW2onkqZvYqRU71mJ3EehRIOFJuZXN1bYIc1UPYQWaQYXh9llwgDcwRFuIOMmNWg.png",
      *                          "rights": {
      *                              "is_admin": true,
      *                              "is_report": false,
@@ -391,7 +391,7 @@ class UsersController extends Controller
             $result['timezone'] = UserTimeZone::getUserTimezone($result['id']);
             $result['rights']['is_admin'] = Rights::isAdmin($result['id']);
             $avatar = Files::getUserFile($result['id'], 'avatar');
-            $result['avatar'] = $avatar ? "/web/files/" . $avatar['filename'] : null;
+            $result['avatar'] = $avatar ? "/files/" . $avatar['filename'] : null;
             return General::success($result, $request, $this);
         } catch (Exception $e) {
             return General::generalMethod($request, 500, $e, $this, Constants::$INTERNAL_SERVER_ERROR);

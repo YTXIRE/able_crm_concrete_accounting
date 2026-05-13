@@ -1,6 +1,6 @@
 <template>
     <div>
-        <el-button circle class="add_user" type="success" @click="dialogVisible = true">
+        <el-button circle class="add_user" type="success" @click="dialogVisible = true" :disabled="!is_demo">
             <font-awesome-icon icon="plus" />
         </el-button>
         <el-dialog v-model="dialogVisible" title="Создание пользователя">
@@ -42,6 +42,7 @@ export default {
             },
             loading: false,
             dialogVisible: false,
+            is_demo: +localStorage.getItem("is_demo") === 0,
             rules: {
                 email: [
                     {

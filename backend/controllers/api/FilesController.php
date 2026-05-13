@@ -58,7 +58,7 @@ class FilesController extends Controller
      *                     "code": 200,
      *                     "status": "OK",
      *                     "data": {
-     *                          "avatar": "/web/files/yW2onkqZvYqRU71mJ3EehRIOFJuZXN1bYIc1UPYQWaQYXh9llwgDcwRFuIOMmNWg.png"
+     *                          "avatar": "/files/yW2onkqZvYqRU71mJ3EehRIOFJuZXN1bYIc1UPYQWaQYXh9llwgDcwRFuIOMmNWg.png"
      *                      }
      *                  }
      *              )
@@ -188,84 +188,127 @@ class FilesController extends Controller
      */
     function actionUploadAvatar(): Response
     {
+        $request = Yii::$app->request;
+
         try {
-            $request = Yii::$app->request;
             if ($request->isOptions) {
                 return General::generalMethod($request, 200, [], $this, Constants::$OK);
             }
+
             if (!$request->isPost) {
                 return General::generalMethod($request, 405, [], $this, Constants::$POST_METHOD_NOT_ALLOWED);
             }
-            $data = $request->bodyParams;
-            $uploads = UploadedFile::getInstancesByName("avatar");
-            $data = [
-                'id' => array_key_exists('id', $data) ? (int)trim($data['id']) : 0,
-                'token' => array_key_exists('token', $data) ? trim($data['token']) : '',
-                'avatar' => $uploads,
-            ];
-            if (empty($data['token'])) {
-                return General::generalMethod($request, 400, $data, $this, Constants::$PLEASE_SPECIFY_USER_TOKEN);
+
+            $post = $request->post();
+
+            $id = isset($post['id']) ? (int)$post['id'] : 0;
+            $token = isset($post['token']) ? trim($post['token']) : '';
+
+            if (!$token) {
+                return General::generalMethod($request, 400, [], $this, Constants::$PLEASE_SPECIFY_USER_TOKEN);
             }
-            if (mb_strlen($data['token']) > 100) {
-                return General::generalMethod($request, 400, $data, $this, Constants::$MAXIMUM_TOKEN_LENGTH);
+
+            if (mb_strlen($token) > 100) {
+                return General::generalMethod($request, 400, [], $this, Constants::$MAXIMUM_TOKEN_LENGTH);
             }
-            if (!Users::checkExistUserWithToken($data['token'])) {
-                return General::generalMethod($request, 404, $data, $this, Constants::$USER_WITH_TOKEN_NOT_FOUND);
+
+            if ($id <= 0) {
+                return General::generalMethod($request, 400, [], $this, Constants::$ID_MUST_BE_INTEGER);
             }
-            if (!is_int($data['id']) || $data['id'] <= 0) {
-                return General::generalMethod($request, 400, $data, $this, Constants::$ID_MUST_BE_INTEGER);
+
+            if (!Users::checkExistUserWithToken($token)) {
+                return General::generalMethod($request, 404, [], $this, Constants::$USER_WITH_TOKEN_NOT_FOUND);
             }
-            if (!Users::checkExistUserWithId($data['id'])) {
-                return General::generalMethod($request, 404, $data, $this, Constants::$USER_WITH_ID_NOT_FOUND);
+
+            if (!Users::checkExistUserWithId($id)) {
+                return General::generalMethod($request, 404, [], $this, Constants::$USER_WITH_ID_NOT_FOUND);
             }
-            if (!Users::checkUserWithTokenAndID($data)) {
+
+            if (!Users::checkUserWithTokenAndID(['id' => $id, 'token' => $token])) {
                 return General::generalMethod($request, 404, [], $this, Constants::$USER_WITH_TOKEN_AND_ID_NOT_FOUND);
             }
-            if (empty($data['avatar'])) {
-                return General::generalMethod($request, 400, $data, $this, Constants::$SPECIFY_FILE);
-            }
-            $ext_type = $data['avatar'][0]->type;
-            $ext = explode('/', $data['avatar'][0]->type)[1];
-            $extensions = ['image/png', 'image/jpg', 'image/jpeg'];
-            if (!$ext || in_array("image/$ext", $extensions)) {
-                $ext = explode('.', $data['avatar'][0]->name)[1];
-            }
-            if ($ext_type === '' && in_array($ext, ['png', 'jpg', 'jpeg'])) {
-                $ext_type = "image/$ext";
-            }
-            if (!in_array($ext_type, $extensions)) {
-                return General::generalMethod($request, 400, $data, $this, Constants::$FILE_UNRESOLVED_EXTENSION_IMAGE);
-            }
-            $meta_data = getimagesize($data['avatar'][0]->tempName);
-            if (!($meta_data[0] <= 500 && $meta_data[1] <= 500)) {
-                return General::generalMethod($request, 400, $data, $this, Constants::$FILE_SIZE_MUST_LESS_THAN_500_PIXELS);
-            }
-            $file_size = (int)filesize($data['avatar'][0]->tempName) / 1024;
-            if (!($file_size <= 500)) {
-                return General::generalMethod($request, 400, $data, $this, Constants::$FILE_WEIGHT_MUST_BE_LESS_THAN_500_KILOBYTES);
-            }
-            $file_in_db = Files::getUserFile($data['id'], 'avatar');
-            $filename = Yii::$app->security->generateRandomString(64);
-            foreach ($uploads as $file) {
-                $path = $_SERVER['DOCUMENT_ROOT'] . "/web/files/$filename.$ext";
-                $file->saveAs($path);
-            }
-            if ($file_in_db === null) {
-                $result = Files::saveFile("$filename.$ext", $data['id'], 'avatar');
-            } else {
-                $result = Files::updateFile("$filename.$ext", $data['id'], 'avatar');
-                $file_path = $_SERVER['DOCUMENT_ROOT'] . "/web/files/" . $file_in_db['filename'];
-                if (file_exists($file_path)) {
-                    unlink($file_path);
-                }
 
+            $file = UploadedFile::getInstanceByName('avatar');
+
+            if (!$file) {
+                return General::generalMethod($request, 400, [], $this, Constants::$SPECIFY_FILE);
             }
-            if ($result === false) {
-                throw new Exception('Ошибка в базе данных');
+
+            if (!$file->tempName || !file_exists($file->tempName)) {
+                return General::generalMethod($request, 400, [], $this, 'Invalid upload');
             }
-            return General::success(['avatar' => "/web/files/$filename.$ext"], $request, $this);
-        } catch (Exception $e) {
-            return General::generalMethod($request, 500, $e, $this, Constants::$INTERNAL_SERVER_ERROR);
+
+            $finfo = new \finfo(FILEINFO_MIME_TYPE);
+            $mime = $finfo->file($file->tempName);
+
+            $allowed = ['image/png', 'image/jpeg', 'image/jpg'];
+
+            if (!in_array($mime, $allowed)) {
+                return General::generalMethod($request, 400, [], $this, Constants::$FILE_UNRESOLVED_EXTENSION_IMAGE);
+            }
+
+            $meta = getimagesize($file->tempName);
+
+            if ($meta === false) {
+                return General::generalMethod($request, 400, [], $this, 'Invalid image');
+            }
+
+            if ($meta[0] > 500 || $meta[1] > 500) {
+                return General::generalMethod($request, 400, [], $this, Constants::$FILE_SIZE_MUST_LESS_THAN_500_PIXELS);
+            }
+
+            $sizeKb = filesize($file->tempName) / 1024;
+
+            if ($sizeKb > 500) {
+                return General::generalMethod($request, 400, [], $this, Constants::$FILE_WEIGHT_MUST_BE_LESS_THAN_500_KILOBYTES);
+            }
+
+            $ext = strtolower(pathinfo($file->name, PATHINFO_EXTENSION));
+            if (!$ext) {
+                $ext = explode('/', $mime)[1];
+            }
+
+            $filename = Yii::$app->security->generateRandomString(64);
+
+            $dir = Yii::getAlias('@webroot/files/');
+            if (!is_dir($dir)) {
+                mkdir($dir, 0777, true);
+            }
+
+            $path = $dir . $filename . '.' . $ext;
+
+            if (!$file->saveAs($path)) {
+                throw new \Exception('Save failed');
+            }
+
+            $fileInDb = Files::getUserFile($id, 'avatar');
+            if ($fileInDb) {
+                Files::updateFile("$filename.$ext", $id, 'avatar');
+                $oldPath = $dir . $fileInDb['filename'];
+                if (file_exists($oldPath)) {
+                    unlink($oldPath);
+                }
+            } else {
+                Files::saveFile("$filename.$ext", $id, 'avatar');
+            }
+
+            return General::success(
+                ['avatar' => "/files/$filename.$ext"],
+                $request,
+                $this
+            );
+
+        } catch (\Throwable $e) {
+            return General::generalMethod(
+                $request,
+                500,
+                [
+                    'error' => $e->getMessage(),
+                    'line' => $e->getLine(),
+                ],
+                $this,
+                Constants::$INTERNAL_SERVER_ERROR
+            );
         }
     }
 }

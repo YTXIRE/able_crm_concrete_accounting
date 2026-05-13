@@ -30,7 +30,7 @@
                     </el-select>
                 </el-form-item>
                 <el-form-item :disabled="loading" :rules="rules.name" label="Название" prop="name">
-                    <el-input v-model="fields.name" maxlength="20" show-word-limit></el-input>
+                    <el-input v-model="fields.name" maxlength="35" show-word-limit></el-input>
                 </el-form-item>
             </el-form>
             <template #footer>

@@ -215,13 +215,11 @@ class MaterialTypesController extends Controller
             }
             $material_types = [];
             foreach (MaterialTypes::getAll($limit, $offset) as $item) {
+                $unit = $item->units;
                 $material_types[] = [
                     'id' => $item['id'],
                     'name' => $item['name'],
-                    'units_measurement_volume' => [
-                        'id' => $item->units['id'],
-                        'name' => $item->units['name'],
-                    ],
+                    'units_measurement_volume' => $unit ? $unit->asApiArray() : null,
                 ];
             }
             return General::success([
@@ -666,7 +664,8 @@ class MaterialTypesController extends Controller
             if (!UnitsMeasurementVolume::checkUnit($data['units_measurement_volume_id'])) {
                 return General::generalMethod($request, 404, [], $this, Constants::$UNITS_VOLUME_NOT_FOUND);
             }
-            if (MaterialTypes::checkIsNotExitsName($data['name'])) {
+            $type = MaterialTypes::find()->where(['=', 'name', $data['name']])->one();
+            if ($type && (int)$type['id'] !== $data['id']) {
                 return General::generalMethod($request, 400, [], $this, Constants::$TYPE_MATERIAL_WITH_NAME_ALREADY_EXISTS);
             }
             if (!Users::checkUserWithTokenAndID(['id' => $data['user_id'], 'token' => $data['token']])) {

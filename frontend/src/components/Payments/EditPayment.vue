@@ -70,7 +70,6 @@
                         v-model="fields.amount"
                         maxlength="15"
                         show-word-limit
-                        type="number"
                         @blur="format_price"
                     ></el-input>
                 </el-form-item>
@@ -120,6 +119,18 @@ export default {
         },
     },
     data() {
+        const validateAmount = (rule, value, callback) => {
+            const normalized = String(value ?? "").trim();
+            if (normalized === "") {
+                callback(new Error("Пожалуйста, укажите сумму"));
+                return;
+            }
+            if (!/^\d+(?:[.,]\d+)?$/.test(normalized)) {
+                callback(new Error("Пожалуйста, укажите корректную сумму"));
+                return;
+            }
+            callback();
+        };
         return {
             fields: {
                 vendor_id: "",
@@ -170,9 +181,8 @@ export default {
                 ],
                 amount: [
                     {
-                        required: true,
-                        message: "Пожалуйста, укажите сумму",
-                        trigger: "blur",
+                        validator: validateAmount,
+                        trigger: ["blur", "change"],
                     },
                 ],
                 created_at: [
@@ -223,7 +233,10 @@ export default {
             });
         },
         format_price: function (e) {
-            this.fields.amount = formatPrice(parseFloat(e.target.value));
+            const normalized = String(e.target.value ?? "").trim().replace(",", ".");
+            if (/^\d+(?:\.\d+)?$/.test(normalized)) {
+                this.fields.amount = formatPrice(parseFloat(normalized));
+            }
         },
     },
     mounted() {

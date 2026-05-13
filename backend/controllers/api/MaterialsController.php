@@ -856,7 +856,7 @@ class MaterialsController extends Controller
                 'count' => []
             ];
             foreach ($materials_tmp as $material) {
-                if (str_contains(mb_strtolower($material['name']), mb_strtolower($query))) {
+                if (mb_stripos((string)$material['name'], $query) !== false) {
                     $materials['materials'][] = [
                         'id' => $material['id'],
                         'name' => $material['name'],

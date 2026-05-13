@@ -435,7 +435,7 @@ class LegalEntitiesController extends Controller
             if (empty($data['name'])) {
                 return General::generalMethod($request, 400, $data, $this, Constants::$PLEASE_SPECIFY_NAME_LEGAL_ENTITY);
             }
-            if (mb_strlen($data['name']) > 20) {
+            if (mb_strlen($data['name']) > 35) {
                 return General::generalMethod($request, 400, $data, $this, Constants::$MAXIMUM_LENGTH_NAME_LEGAL_ENTITY_100_CHARACTERS);
             }
             if (!is_int($data['legal_entities_type_id']) || $data['legal_entities_type_id'] <= 0 || !is_int($data['user_id']) || $data['user_id'] <= 0) {
@@ -669,7 +669,7 @@ class LegalEntitiesController extends Controller
             if (empty($data['name'])) {
                 return General::generalMethod($request, 400, $data, $this, Constants::$PLEASE_SPECIFY_NAME_LEGAL_ENTITY);
             }
-            if (mb_strlen($data['name']) > 20) {
+            if (mb_strlen($data['name']) > 35) {
                 return General::generalMethod($request, 400, $data, $this, Constants::$MAXIMUM_LENGTH_NAME_LEGAL_ENTITY_100_CHARACTERS);
             }
             if (!is_int($data['id']) || $data['id'] <= 0 || !is_int($data['legal_entities_type_id']) || $data['legal_entities_type_id'] <= 0

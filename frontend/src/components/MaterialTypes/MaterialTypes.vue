@@ -10,7 +10,11 @@
                 style="width: 100%"
             >
                 <el-table-column label="ID" prop="id" sortable width="80" />
-                <el-table-column label="Величина объема" prop="units_measurement_volume.name" sortable width="260" />
+                <el-table-column label="Величина объема" prop="units_measurement_volume.full_name" sortable width="260">
+                    <template #default="scope">
+                        {{ `${scope.row.units_measurement_volume.short_name} - ${scope.row.units_measurement_volume.full_name}` }}
+                    </template>
+                </el-table-column>
                 <el-table-column label="Название" prop="name" sortable />
                 <el-table-column label="Действие" width="85">
                     <template #default="scope">

@@ -139,47 +139,83 @@ class AuthController extends Controller
      */
     function actionLogin(): Response
     {
+        $request = Yii::$app->request;
+
         try {
-            $request = Yii::$app->request;
             if ($request->isOptions) {
                 return General::generalMethod($request, 200, [], $this, Constants::$OK);
             }
+
             if (!$request->isPost) {
                 return General::generalMethod($request, 405, [], $this, Constants::$POST_METHOD_NOT_ALLOWED);
             }
-            $data = $request->post();
-            $data = [
-                'login' => array_key_exists('login', $data) ? trim($data['login']) : '',
-                'password' => array_key_exists('password', $data) ? trim($data['password']) : '',
-            ];
-            if (!array_key_exists('login', $data) || !array_key_exists('password', $data) ||
-                empty($data['login']) || empty($data['password'])) {
-                return General::generalMethod($request, 400, $data, $this, Constants::$PLEASE_MAKE_SURE_THAT_ALL_THE_REQUIRED_FIELDS_ARE_FILLED_IN_CORRECTLY);
+
+            $post = $request->post();
+
+            $login = isset($post['login']) ? trim($post['login']) : '';
+            $passwordInput = isset($post['password']) ? trim($post['password']) : '';
+
+            if ($login === '' || $passwordInput === '') {
+                return General::generalMethod(
+                    $request,
+                    400,
+                    [],
+                    $this,
+                    Constants::$PLEASE_MAKE_SURE_THAT_ALL_THE_REQUIRED_FIELDS_ARE_FILLED_IN_CORRECTLY
+                );
             }
-            if (mb_strlen($data['login']) > 100) {
-                return General::generalMethod($request, 400, $data, $this, Constants::$MAXIMUM_LOGIN_LENGTH);
+
+            if (mb_strlen($login) > 100) {
+                return General::generalMethod($request, 400, [], $this, Constants::$MAXIMUM_LOGIN_LENGTH);
             }
-            if (mb_strlen($data['password']) > 100) {
-                return General::generalMethod($request, 400, $data, $this, Constants::$MAXIMUM_PASSWORD_LENGTH);
+
+            if (mb_strlen($passwordInput) > 100) {
+                return General::generalMethod($request, 400, [], $this, Constants::$MAXIMUM_PASSWORD_LENGTH);
             }
-            $password = Users::checkExistUserWithLogin($data['login']);
-            if (!$password) {
-                return General::generalMethod($request, 404, $data, $this, Constants::$USER_NOT_FOUND);
+
+            $user = Users::checkExistUserWithLogin($login);
+
+            if (!$user || !isset($user['password'])) {
+                return General::generalMethod($request, 404, [], $this, Constants::$USER_NOT_FOUND);
             }
-            if (!Yii::$app->getSecurity()->validatePassword($data['password'], $password['password'])) {
-                return General::generalMethod($request, 400, $data, $this, Constants::$INCORRECT_LOGIN_OR_PASSWORD);
+
+            if (!Yii::$app->security->validatePassword($passwordInput, $user['password'])) {
+                return General::generalMethod($request, 400, [], $this, Constants::$INCORRECT_LOGIN_OR_PASSWORD);
             }
-            $token = Users::checkTokenUserWithLogin($data['login']);
-            if ($token['token']) {
-                return General::success(['token' => $token['token'], 'id' => $token['id'], 'is_demo' => $token['is_demo']], $request, $this);
+
+            $token = Users::checkTokenUserWithLogin($login);
+
+            if ($token && !empty($token['token'])) {
+                return General::success([
+                    'token' => $token['token'],
+                    'id' => $token['id'],
+                    'is_demo' => $token['is_demo']
+                ], $request, $this);
             }
-            $result = Users::generateToken($data);
-            if ($result['code'] == 0) {
-                throw new Exception('Ошибка базы данных');
+
+            $result = Users::generateToken(['login' => $login]);
+
+            if (!$result || empty($result['token'])) {
+                throw new \Exception('Ошибка базы данных');
             }
-            return General::success(['token' => $result['token'], 'id' => $result['id'], 'is_demo' => $result['is_demo']], $request, $this);
-        } catch (Exception $e) {
-            return General::generalMethod($request, 500, $e, $this, Constants::$INTERNAL_SERVER_ERROR);
+
+            return General::success([
+                'token' => $result['token'],
+                'id' => $result['id'],
+                'is_demo' => $result['is_demo']
+            ], $request, $this);
+
+        } catch (\Throwable $e) {
+            return General::generalMethod(
+                $request,
+                500,
+                [
+                    'error' => $e->getMessage(),
+                    'line' => $e->getLine()
+                ],
+                $this,
+                Constants::$INTERNAL_SERVER_ERROR
+            );
         }
     }
 
@@ -294,8 +330,9 @@ class AuthController extends Controller
      */
     function actionLogout(): Response
     {
+        $request = Yii::$app->request;
+
         try {
-            $request = Yii::$app->request;
             if ($request->isOptions) {
                 return General::generalMethod($request, 200, [], $this, Constants::$OK);
             }
@@ -304,26 +341,58 @@ class AuthController extends Controller
             }
             $data = $request->post();
             $token = array_key_exists('token', $data) ? trim($data['token']) : '';
-            $user_id = array_key_exists('user_id', $data) ? trim($data['user_id']) : '';
-            if (empty($token)) {
-                return General::generalMethod($request, 400, $token, $this, Constants::$PLEASE_SPECIFY_USER_TOKEN);
+            if ($token === '') {
+                $authHeader = $request->headers->get('Authorization');
+                if ($authHeader && preg_match('/Bearer\s(\S+)/', $authHeader, $matches)) {
+                    $token = trim($matches[1]);
+                }
+            }
+            if ($token === '') {
+                return General::generalMethod($request, 400, [], $this, Constants::$PLEASE_SPECIFY_USER_TOKEN);
+            }
+            $user_id = array_key_exists('user_id', $data) ? (int)$data['user_id'] : 0;
+            if ($user_id <= 0) {
+                return General::generalMethod($request, 400, [], $this, Constants::$ID_MUST_BE_INTEGER);
             }
             if (mb_strlen($token) > 100) {
-                return General::generalMethod($request, 400, $token, $this, Constants::$MAXIMUM_TOKEN_LENGTH);
+                return General::generalMethod(
+                    $request,
+                    400,
+                    [],
+                    $this,
+                    Constants::$MAXIMUM_TOKEN_LENGTH
+                );
             }
             if (!Users::checkExistUserWithToken($token)) {
-                return General::generalMethod($request, 404, $data, $this, Constants::$USER_WITH_TOKEN_NOT_FOUND);
+                return General::generalMethod($request, 404, [], $this, Constants::$USER_WITH_TOKEN_NOT_FOUND);
             }
             if (!Users::checkUserWithTokenAndID(['id' => $user_id, 'token' => $token])) {
                 return General::generalMethod($request, 404, [], $this, Constants::$USER_WITH_TOKEN_AND_ID_NOT_FOUND);
             }
             $result = Users::removeToken($token);
-            if ($result['code'] == 0) {
-                throw new Exception('Ошибка базы данных');
+            if ($result && isset($result['code']) && $result['code'] == 0) {
+                throw new \Exception('DB error');
             }
-            return General::generalMethod($request, 200, $data, $this, Constants::$USER_SUCCESSFULLY_LOGOUT);
-        } catch (Exception $e) {
-            return General::generalMethod($request, 500, $e, $this, Constants::$INTERNAL_SERVER_ERROR);
+            return General::generalMethod(
+                $request,
+                200,
+                [],
+                $this,
+                Constants::$USER_SUCCESSFULLY_LOGOUT
+            );
+        } catch (\Throwable $e) {
+            Yii::error([
+                'message' => $e->getMessage(),
+                'line' => $e->getLine(),
+                'file' => $e->getFile(),
+            ], 'logout');
+            return General::generalMethod(
+                $request,
+                500,
+                [],
+                $this,
+                Constants::$INTERNAL_SERVER_ERROR
+            );
         }
     }
 }

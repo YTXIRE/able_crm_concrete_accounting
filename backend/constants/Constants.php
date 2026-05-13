@@ -44,7 +44,7 @@ class Constants
     public static string $MAXIMUM_LENGTH_NAME_100_CHARACTERS = 'Максимальная длина названия может быть 100 символов';
     public static string $TYPE_MATERIAL_WITH_ID_NOT_FOUND = 'Тип материала с указанным идентификатором не найден';
     public static string $MATERIAL_WITH_NAME_ALREADY_EXISTS = 'Материал с указанным названием уже существует';
-    public static string $MAXIMUM_LENGTH_NAME_LEGAL_ENTITY_100_CHARACTERS = 'Максимальная длина названия юридического лица может быть 20 символов';
+    public static string $MAXIMUM_LENGTH_NAME_LEGAL_ENTITY_100_CHARACTERS = 'Максимальная длина названия юридического лица может быть 35 символов';
     public static string $NEW_TYPE_MATERIAL_SUCCESSFULLY_CREATED = 'Новый тип материала успешно создан';
     public static string $PLEASE_SPECIFY_NAME_OBJECT = 'Пожалуйста, укажите название объекта';
     public static string $NO_SUPPLIER_WITH_ID_FOUND = 'Поставщик с указанным идентификатором не найден';

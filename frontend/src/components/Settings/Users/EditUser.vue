@@ -1,5 +1,5 @@
 <template>
-    <el-button class="edit_user" type="primary" @click="dialogVisible = true">
+    <el-button class="edit_user" type="primary" @click="dialogVisible = true" :disabled="!is_demo">
         <font-awesome-icon icon="edit" />
     </el-button>
     <el-dialog v-model="dialogVisible" title="Редактирование пользователя">
@@ -42,6 +42,7 @@ export default {
             },
             loading: false,
             dialogVisible: false,
+            is_demo: +localStorage.getItem("is_demo") === 0,
             rules: {
                 email: [
                     {

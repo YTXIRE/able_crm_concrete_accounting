@@ -1,7 +1,7 @@
 <template>
     <div>
         <div>
-            <el-checkbox v-model="isDebt" @change="setDebt" label="Включить долг на конец года"></el-checkbox>
+            <el-checkbox v-model="isDebt" :disabled="!is_demo" @change="setDebt" label="Включить долг на конец года"></el-checkbox>
         </div>
     </div>
 </template>
@@ -13,6 +13,7 @@ export default {
     data() {
         return {
             isDebt: false,
+            is_demo: false,
         };
     },
     methods: {
@@ -28,6 +29,7 @@ export default {
         this.isDebt = await this.getDebt({
             token: localStorage.getItem("crm_token"),
         });
+        this.is_demo = +localStorage.getItem("is_demo") === 0;
     },
 };
 </script>

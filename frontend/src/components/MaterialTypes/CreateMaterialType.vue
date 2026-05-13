@@ -23,8 +23,12 @@
                             v-for="item in units_measurement_volume"
                             :key="item.id"
                             :value="item.id"
-                            :label="item.name"
+                            :label="item.short_name"
                         >
+                            <span class="name">{{ item.full_name }}</span>
+                            <span class="label">
+                                {{ item.short_name }}
+                            </span>
                         </el-option>
                     </el-select>
                 </el-form-item>
@@ -110,5 +114,15 @@ export default {
 <style scoped>
 .el-select {
     width: 100%;
+}
+
+.name {
+    float: right;
+    color: var(--el-text-color-secondary);
+    font-size: 13px;
+}
+
+.label {
+    float: left;
 }
 </style>

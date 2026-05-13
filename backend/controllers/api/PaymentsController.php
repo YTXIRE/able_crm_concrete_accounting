@@ -710,11 +710,16 @@ class PaymentsController extends Controller
                 'vendor_id' => array_key_exists('vendor_id', $data) ? (int)($data['vendor_id']) : 0,
                 'legal_entity_id' => array_key_exists('legal_entity_id', $data) ? (int)($data['legal_entity_id']) : 0,
                 'material_type_id' => array_key_exists('material_type_id', $data) ? (int)($data['material_type_id']) : 0,
-                'amount' => array_key_exists('amount', $data) ? (float)($data['amount']) : 0.0,
+                'amount_raw' => array_key_exists('amount', $data) ? trim((string)$data['amount']) : '',
+                'amount' => 0.0,
                 'created_at' => array_key_exists('created_at', $data) ? (int)($data['created_at']) : $date->getTimestamp(),
                 'user_id' => array_key_exists('user_id', $data) ? (int)($data['user_id']) : 0,
                 'operation_type' => array_key_exists('operation_type', $data) ? trim($data['operation_type']) : '',
             ];
+            if ($data['amount_raw'] === '' || !preg_match('/^-?\d+(?:[\.,]\d+)?$/', $data['amount_raw'])) {
+                return General::generalMethod($request, 400, $data, $this, Constants::$SUM_MUST_INTEGER_AND_MUST_GREATER_ZERO);
+            }
+            $data['amount'] = (float)str_replace(',', '.', $data['amount_raw']);
             if ($data['created_at'] === 0) {
                 $data['created_at'] = $date->getTimestamp();
             }
@@ -980,11 +985,16 @@ class PaymentsController extends Controller
                 'vendor_id' => array_key_exists('vendor_id', $data) ? (int)($data['vendor_id']) : 0,
                 'legal_entity_id' => array_key_exists('legal_entity_id', $data) ? (int)($data['legal_entity_id']) : 0,
                 'material_type_id' => array_key_exists('material_type_id', $data) ? (int)($data['material_type_id']) : 0,
-                'amount' => array_key_exists('amount', $data) ? (float)($data['amount']) : 0.0,
+                'amount_raw' => array_key_exists('amount', $data) ? trim((string)$data['amount']) : '',
+                'amount' => 0.0,
                 'created_at' => array_key_exists('created_at', $data) ? (int)($data['created_at']) : $date->getTimestamp(),
                 'user_id' => array_key_exists('user_id', $data) ? (int)($data['user_id']) : 0,
                 'operation_type' => array_key_exists('operation_type', $data) ? trim($data['operation_type']) : '',
             ];
+            if ($data['amount_raw'] === '' || !preg_match('/^-?\d+(?:[\.,]\d+)?$/', $data['amount_raw'])) {
+                return General::generalMethod($request, 400, $data, $this, Constants::$SUM_MUST_INTEGER_AND_MUST_GREATER_ZERO);
+            }
+            $data['amount'] = (float)str_replace(',', '.', $data['amount_raw']);
             if ($data['created_at'] === 0) {
                 $data['created_at'] = $date->getTimestamp();
             }

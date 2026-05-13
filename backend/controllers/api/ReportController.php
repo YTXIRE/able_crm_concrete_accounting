@@ -1483,7 +1483,7 @@ class ReportController extends Controller
                 'name' => $value->material['name'],
                 'type' => $value->material->materialType['name'],
                 'type_id' => $value->material->materialType['id'],
-                'units' => $value->material->materialType->units['name']
+                'units' => $value->material->materialType->units->asApiArray()
             ],
             'volume' => (float)$value['volume'],
             'created_at' => $value['created_at'],
